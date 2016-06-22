@@ -16,9 +16,7 @@
 		<property name="max_fetch_depth">1</property>
 		<property name="jdbc.batch_size">0</property>
 		<property name="jdbc.batch_versioned_data">true</property>
-
 		<property name="transaction.factory_class">org.hibernate.transaction.JDBCTransactionFactory</property>
-
         <!-- Enable Hibernate's automatic session context management -->
         <property name="current_session_context_class">thread</property>
 
