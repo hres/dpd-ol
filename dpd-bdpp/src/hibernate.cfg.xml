@@ -1,0 +1,32 @@
+
+<!DOCTYPE hibernate-configuration PUBLIC
+	"-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+	<session-factory>
+		<property name="show_sql">false</property>
+		<property name="use_sql_comments">true</property>
+		<property name="query.substitutions">true 1, false 0, yes 'Y', no 'N'</property>
+		<property name="dialect">org.hibernate.dialect.Oracle9Dialect</property>
+		<property name="connection.datasource">java:comp/env/jdbc/dpd_dsn</property>
+
+		<!-- JDBC Settings -->
+		<property name="jdbc.use_streams_for_binary">true</property>
+		<property name="max_fetch_depth">1</property>
+		<property name="jdbc.batch_size">0</property>
+		<property name="jdbc.batch_versioned_data">true</property>
+
+        <!-- Enable Hibernate's automatic session context management -->
+        <property name="current_session_context_class">thread</property>
+
+		<property name="cache.provider_class">
+			org.hibernate.cache.HashtableCacheProvider
+		</property>
+
+		<!-- mapping files -->
+		<mapping resource="DPDSchema.hbm.xml"/>
+
+		
+	</session-factory>
+</hibernate-configuration>

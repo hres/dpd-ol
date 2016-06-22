@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+ <!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 1.1//EN"
+       "tiles-config_1_3.dtd">
+
+<tiles-definitions>
+	<definition name="baseDefinition" page="/layout/layout.jsp">
+		<put name="subheader" value="/layout/subHeader.jsp" />
+		<put name="metadata" value="/layout/metaData.jsp" />
+		<put name="body" value="/layout/body.jsp" /> 
+		<put name="formname" value="" /> 
+	</definition>
+	
+  <definition name="t.search.recherche" extends="baseDefinition" >
+    <put name="subheader"   value="/layout/subHeader.jsp"/>
+    <put name="titleKey" value="application.title"/>
+    <put name="body" value="/jsp/search_drug.jsp"/>
+    <put name="formname" value="t.search.recherche" /> 
+  </definition>
+  
+  <definition name="t.result.resultat" 
+    extends="baseDefinition" >
+    <put name="subheader"   value="/layout/subHeader.jsp"/>
+    <put name="titleKey" value="title.search.result"/>
+    <put name="body" value="/jsp/search_results.jsp"/>
+    <put name="formname" value="t.result.resultat" /> 
+  </definition>
+
+  <definition name="t.info" 
+    extends="baseDefinition" >
+    <put name="subheader"   value="/layout/subHeader.jsp"/>
+    <put name="titleKey" value="title.product.info"/>
+    <put name="body" value="/jsp/product_info.jsp"/>
+    <put name="formname" value="t.info" /> 
+  </definition>
+  
+  <definition name="t.failure.echec" page="/jsp/failure.jsp">
+    <put name="titleKey" value="title.failure"/>
+    <put name="formname" value="t.failure.echec" /> 
+  </definition>
+  
+<definition name="errorDefinition" page="/layout/errorlayout.jsp">  
+	<put name="metadata" value="/layout/metaData.jsp" />
+	<put name="body" value="/layout/body.jsp" /> 
+	<put name="formname" value="" />
+</definition>
+  
+<definition name="t.error.404" extends="errorDefinition">
+	<put name="titleKey" value="404.title" />
+	<put name="body" value="/jsp/error404.jsp" />
+	<put name="formname" value="t.error.404" />
+</definition>
+
+<definition name="t.error.500" extends="errorDefinition">
+	<put name="titleKey" value="500.title" />
+	<put name="body" value="/jsp/error500.jsp" />
+	<put name="formname" value="t.error.500" />
+</definition>
+
+<definition name="t.timeout" extends="errorDefinition">
+	<put name="titleKey" value="label.timeout.title" />
+    <put name="body" value="/jsp/timeout.jsp" />
+    <put name="formname" value="t.timeout" /> 
+</definition> 
+</tiles-definitions>

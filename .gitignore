@@ -1,0 +1,15 @@
+RemoteSystemsTempFiles/
+.metadata/
+Servers/
+bin
+out
+build
+classes
+.gradle
+.#*
+.classpath
+.project
+.settings
+.idea
+*.iml
+Context.xml

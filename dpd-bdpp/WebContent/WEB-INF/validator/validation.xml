@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<!DOCTYPE form-validation PUBLIC
+          "-//Apache Software Foundation//DTD Commons Validator Rules Configuration 1.0//EN"
+          "http://jakarta.apache.org/commons/dtds/validator_1_0.dtd">
+<!--
+    Validation Rules for the Struts Example Web Application
+
+    $Id: validation.xml,v 1.3.40.1 2015/01/20 02:36:08 slariviere Exp $
+-->
+
+<form-validation>
+    <!-- ========== Default Language Form Definitions ===================== -->
+
+     <formset>
+   		<constant>
+		<constant-name>phone</constant-name>
+			<constant-value>
+				[0-9]{3}[-][0-9]{3}[-][0-9]{4}
+			</constant-value>
+		</constant>
+		<constant>
+		<constant-name>characterMask</constant-name>
+			<constant-value>
+				[a-zA-Z]{1}a-zA-Z0-9\-\_\' ']*
+			</constant-value>
+		</constant>
+		
+			
+		<form name="SearchForm">
+			 <field property="brandName" depends="mask">
+				  <arg0 key="label.product.brand.name" /> 
+				  <msg name="mask" key="error.invalide.product" /> 
+			 	  <var>
+				  <var-name>mask</var-name> 
+		  		  <var-value>${characterMask}</var-value> 
+				  </var>
+	  		</field>
+	  		<field property="companyName" depends="mask">
+				  <arg0 key="label.product.company" /> 
+				  <msg name="mask" key="error.invalide.company" /> 
+			 	  <var>
+				  <var-name>mask</var-name> 
+		  		  <var-value>${characterMask}</var-value> 
+				  </var>
+	  		</field>
+	  		<field property="activeIngredient" depends="mask">
+				  <arg0 key="label.search.drug.active.ingredient" /> 
+				  <msg name="mask" key="error.invalide.ai" /> 
+			 	  <var>
+				  <var-name>mask</var-name> 
+		  		  <var-value>${characterMask}</var-value> 
+				  </var>
+	  		</field>
+		</form>
+
+    </formset>
+    
+</form-validation>

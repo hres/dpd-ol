@@ -1,0 +1,210 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+	
+<hibernate-mapping package="ca.gc.hc.model" schema="DPD_ONLINE_OWNER">
+	<class name="ca.gc.hc.model.AHFS" table="WQRY_AHFS">
+    <composite-id>
+      <key-property name="drugCode" column="DRUG_CODE" 
+        type="java.lang.Long" />
+      <key-property name="ahfsNumber" column="TC_AHFS_NUMBER" 
+			 type="java.lang.String" />
+    </composite-id>
+      <property name="ahfsE" column="TC_AHFS" 
+			 type="java.lang.String" />
+      <property name="ahfsF" column="TC_AHFS_F" 
+			 type="java.lang.String" />
+	</class>
+	<class name="ca.gc.hc.model.ATC" table="WQRY_ATC">
+    <composite-id>
+      <key-property name="drugCode" column="DRUG_CODE" 
+        type="java.lang.Long" />
+      <key-property name="atcNumber" column="TC_ATC_NUMBER" 
+			 type="java.lang.String" />
+    </composite-id>
+      <property name="atcE" column="TC_ATC" 
+			 type="java.lang.String" update="false"/>
+      <property name="atcF" column="TC_ATC_F" 
+			 type="java.lang.String" update="false"/>
+	</class>
+	<class name="ca.gc.hc.model.ActiveIngredients" 
+	  table="WQRY_ACTIVE_INGREDIENTS" >
+		<id name="id" column="ID" type="java.lang.Long">
+			<generator class="native"/>
+		</id>
+    <property name="drugCode" column="DRUG_CODE" type="java.lang.Long" 
+        />
+    <property name="ingredientE" column="INGREDIENT" 
+        type="java.lang.String" />
+    <property name="ingredientF" column="INGREDIENT_F" 
+        type="java.lang.String" />
+    <property name="strength" column="STRENGTH" 
+        type="java.lang.String" />
+    <property name="strengthUnitE" column="STRENGTH_UNIT" 
+			type="java.lang.String" />
+    <property name="strengthUnitF" column="STRENGTH_UNIT_F" 
+			type="java.lang.String" />
+		<property name="dosageValue" column="DOSAGE_VALUE" 
+			type="java.lang.String" />
+		<property name="dosageUnitE" column="DOSAGE_UNIT" 
+			type="java.lang.String" />
+		<property name="dosageUnitF" column="DOSAGE_UNIT_F" 
+			type="java.lang.String" />
+	</class>
+	
+	<class name="ca.gc.hc.model.Veterinary" table="WQRY_DRUG_VETERINARY_SPECIES" >
+		<composite-id>
+	      <key-property name="drugCode" column="DRUG_CODE" type="java.lang.Long" />
+	   	  <key-property name="id" column="VET_SPECIES_CODE" type="java.lang.Long" 
+	   	    />
+	    </composite-id>	
+	    <property name="vetSpeciesE" column="VET_SPECIES" type="java.lang.String" />
+	    <property name="vetSpeciesF" column="VET_SPECIES_F" type="java.lang.String" />
+	</class>
+	
+	<class name="ca.gc.hc.model.Company" table="WQRY_COMPANIES">
+		<id name="companyCode" column="COMPANY_CODE" type="java.lang.Long">
+			<generator class="native"/>
+		</id>
+		<property name="mfrCode" column="MFR_CODE" type="java.lang.String" />
+		<property name="companyName" column="COMPANY_NAME" 
+			type="java.lang.String" />
+		<property name="companyType" column="COMPANY_TYPE" 
+			type="java.lang.String" />
+		<property name="suiteNumner" column="SUITE_NUMNER" 
+			type="java.lang.String" />
+		<property name="streetNameE" column="STREET_NAME" 
+			type="java.lang.String" />
+		<property name="streetNameF" column="STREET_NAME_F" 
+			type="java.lang.String" />
+		<property name="cityName" column="CITY_NAME" type="java.lang.String" />
+		<property name="provinceE" column="PROVINCE" type="java.lang.String" />
+		<property name="countryE" column="COUNTRY" type="java.lang.String" />
+		<property name="provinceF" column="PROVINCE_F" type="java.lang.String" />
+		<property name="countryF" column="COUNTRY_F" type="java.lang.String" />
+		<property name="postalCode" column="POSTAL_CODE" 
+			type="java.lang.String" />
+		<property name="postOfficeBox" column="POST_OFFICE_BOX" 
+			type="java.lang.String" />
+	</class>
+	<class name="ca.gc.hc.model.DrugProduct" table="WQRY_DRUG_PRODUCT">
+		<id name="drugCode" column="DRUG_CODE" type="java.lang.Long">
+			<generator class="native"/>
+		</id>
+		<property name="brandNameE" column="BRAND_NAME" type="java.lang.String" 
+			not-null="true"/>
+		<property name="brandNameF" column="BRAND_NAME_F" type="java.lang.String" 
+			not-null="false"/>
+		<property name="drugIdentificationNumber" 
+			column="DRUG_IDENTIFICATION_NUMBER" type="java.lang.String" 
+			not-null="true"/>
+		<property name="companyCode" column="COMPANY_CODE" 
+			type="java.lang.Long" not-null="true"/>
+		<property name="drugClassE" column="CLASS" type="java.lang.String" />
+		<property name="drugClassF" column="CLASS_F" type="java.lang.String" />
+		<property name="numberOfAis" column="NUMBER_OF_AIS" 
+			type="java.lang.Long" not-null="true"/>
+		<property name="aiGroupNo" column="AI_GROUP_NO" type="java.lang.String" />
+		<property name="descriptorE" column="DESCRIPTOR" type="java.lang.String" />
+		<property name="descriptorF" column="DESCRIPTOR_F" type="java.lang.String" />
+		<property name="classCode" column="CLASS_CODE" 
+			type="java.lang.Long" not-null="true"/>
+
+			
+	</class>
+	<class name="ca.gc.hc.model.DrugStatus" table="WQRY_STATUS">
+	<composite-id>
+	      <key-property name="drugCode" column="DRUG_CODE" type="java.lang.Long" />
+	   	  <key-property name="statusID" column="STATUS_CODE" 
+	   	  	type="java.lang.Long" />
+	 </composite-id>
+		<property name="historyDate" column="HISTORY_DATE" 
+			type="java.util.Date" />
+		<property name="originalMarketDate" column="ORIGINAL_MARKET_DATE"
+			type="java.util.Date" />
+		<many-to-one name="externalStatus" class="ExternalStatus" column="EXTERNAL_STATUS_CODE" />
+	</class>
+	
+	<class name="ca.gc.hc.model.ExternalStatus" table="WQRY_STATUS_EXTERNAL">
+		<id name="externalStatusId" column="EXTERNAL_STATUS_CODE" type="java.lang.Long">
+			<generator class="native"/>
+		</id>
+		<property name="externalStatusE" column="EXTERNAL_STATUS_ENGLISH" type="java.lang.String" />
+		<property name="externalStatusF" column="EXTERNAL_STATUS_FRENCH" type="java.lang.String" />
+		<property name="inactiveDate" column="INACTIVE_DATE" type="java.util.Date" />
+	</class>
+	<class name="ca.gc.hc.model.Form" table="WQRY_FORM">
+    <composite-id>
+      <key-property name="drugCode" column="DRUG_CODE" type="java.lang.Long" />
+      <key-property name="pharmaceuticalFormE" column="PHARMACEUTICAL_FORM" 
+			type="java.lang.String" />
+    </composite-id>
+  	<property name="pharmaceuticalFormF" column="PHARMACEUTICAL_FORM_F" 
+		type="java.lang.String" />
+	</class>
+	<class name="ca.gc.hc.model.Packaging" table="WQRY_PACKAGING">
+		<id name="packagingId" type="long" column="WQRY_PACKAGING_ID">
+			<generator class="assigned"/>
+		</id>      
+      	<property name="drugCode" column="DRUG_CODE" type="java.lang.Long" />
+    	<property name="productInformation" column="PRODUCT_INFORMATION" type="java.lang.String"  />
+    	<property name="packageSize" column="PACKAGE_SIZE" type="java.lang.String"/>
+    
+		<property name="upc" column="UPC" type="java.lang.String" />
+		
+		<property name="packageSizeUnit" column="PACKAGE_SIZE_UNIT" 
+			type="java.lang.String" />
+		<property name="packageType" column="PACKAGE_TYPE" 
+			type="java.lang.String" />
+	</class>
+	<class name="ca.gc.hc.model.Route" table="WQRY_ROUTE">
+	    <composite-id>
+	      <key-property name="drugCode" column="DRUG_CODE" type="java.lang.Long" />
+	   	  <key-property name="routeOfAdministrationE" column="ROUTE_OF_ADMINISTRATION" 
+	   	  	type="java.lang.String" />
+	    </composite-id>
+	   	<property name="routeOfAdministrationF" column="ROUTE_OF_ADMINISTRATION_F" 
+	   		type="java.lang.String" />
+	</class>
+	<class  name="ca.gc.hc.model.Schedule" table="WQRY_SCHEDULE">
+    <composite-id>
+      <key-property name="drugCode" column="DRUG_CODE" type="java.lang.Long" />
+      <key-property name="scheduleE" column="SCHEDULE" type="java.lang.String" />
+    </composite-id>
+    <property name="scheduleF" column="SCHEDULE_F" type="java.lang.String" />
+	</class>
+
+	<class  name="ca.gc.hc.model.ProductLabel" table="WQRY_LABEL">
+		<composite-id>
+	      <key-property name="drugCode" column="DRUG_CODE" type="java.lang.Long" />
+	      <key-property name="marketedLabelNo" column="MARKETED_LABEL_NO" type="int" />
+	    </composite-id>
+		<property name="dateScanned" column="DATE_SCANNED" type="date" update="false" insert="false" />
+		
+		<property name="marketedLebelFname" column="MARKETED_LEBEL_FNAME" type="java.lang.String" />
+		<property name="apprvdLabelDate" column="APPRVD_LABEL_DATE"  type="date" update="false" insert="false" />
+		<property name="apprvdLabelFname" column="APPRVD_LABEL_FNAME"  type="java.lang.String" />
+		
+	</class>
+	<class  name="ca.gc.hc.model.ProductMonograph" table="WQRY_PM_DRUG">
+		<id name="drugCode" column="DRUG_CODE" type="java.lang.Long">
+			<generator class="native"/>
+		</id>
+		<property name="pmNumber" column="PM_NUMBER" type="int"/>
+		<property name="pmVersionNumber" column="PM_VER_NUMBER" type="int"/>
+		<property name="pmControlNumber" column="PM_CONTROL_NUMBER"  type="java.lang.String" />
+		<property name="pmDate" column="PM_DATE" type="date" update="false" insert="false" />
+		<property name="pmEnglishFName" column="PM_ENGLISH_FNAME"  type="java.lang.String" />
+		<property name="pmFrenchFName" column="PM_FRENCH_FNAME"  type="java.lang.String" />
+
+	</class>
+	<class name="ca.gc.hc.model.DrugClass" table="WQRY_DRUG_CLASS">
+	    <id name="drugClassId" column="DRUG_CLASS_CODE" type="java.lang.Long" />	    
+      <property name="drugClassE" column="DRUG_CLASS_DESC" 
+			 type="java.lang.String" />
+      <property name="drugClassF" column="DRUG_CLASS_DESC_F" 
+			 type="java.lang.String" />
+	</class>
+	
+</hibernate-mapping>

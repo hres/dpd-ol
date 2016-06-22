@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE struts-config PUBLIC
+          "-//Apache Software Foundation//DTD Struts Configuration 1.3//EN"
+          "http://struts.apache.org/dtds/struts-config_1_3.dtd">
+<struts-config>
+
+<!-- ========== Data Source Configuration ============================== -->
+  
+  <!-- ========== Form Bean Definitions ================================== -->
+
+    <form-beans>
+	    <form-bean name="SearchForm" 
+	               type="ca.gc.hc.view.SearchForm"/>
+	    
+	    <form-bean name="PagerForm"
+	               type="ca.gc.hc.view.PagerForm" />
+	    
+	    <form-bean name="ShortcutSearchForm" type="org.apache.struts.action.DynaActionForm">
+	      <form-property name="code" type="java.lang.String" initial="" />
+	      <form-property name="no" type="java.lang.String" initial="" />
+	    </form-bean>
+	
+	    <form-bean name="DrugCodeForm" type="org.apache.struts.action.DynaActionForm">
+	      <form-property name="drugCode" type="java.lang.String" initial="" />
+	    </form-bean>
+	   <form-bean name="dummyForm" type="ca.gc.hc.view.DummyForm" />
+	  
+	  <form-bean name="viewPmForm" type="org.apache.struts.action.DynaActionForm">
+       	<form-property name="pmName" type="java.lang.String" initial=""  />
+     </form-bean>
+	  
+	  
+  </form-beans>
+  <!--  Global Exceptions  --> 
+  <global-exceptions /> 
+  <!--  Global Forwards --> 
+  
+  <global-forwards>
+    <forward name="SearchPage" path="/newSearch-nouvelleRecherche.do"/>
+    <forward name="sessionTimeout" path="/distro/4.0.9/timeout.jsp" />
+	<forward name="error404" path="/error404.do" />
+	<forward name="error500" path="/error500.do" />
+	<forward name="timeout" path="/timeout.do" />
+  </global-forwards>
+  
+  <!-- ========== Action Mapping Definitions ============================= -->
+  <action-mappings>
+    <action path="/start-debuter" 
+            type="ca.gc.hc.controller.StartupAction" 
+            name="SearchForm"  
+            validate="false" 
+            input="t.search.recherche" attribute="search">
+      <forward name="failure" path="t.error.500" /> 
+      
+    </action>
+    <action path="/newSearch-nouvelleRecherche" 
+            type="ca.gc.hc.controller.NewSearchAction" 
+            name="SearchForm" 
+            validate="false" 
+            input="t.search.recherche" attribute="search">
+      <forward name="success" path="t.search.recherche" /> 
+      <forward name="failure" path="t.error.500" /> 
+      
+    </action>
+    <action path="/dispatch-repartition"
+	              type="ca.gc.hc.controller.DispatchSearchAction"
+	              name="SearchForm"
+	              scope="request"
+	              validate="false"
+	              parameter="method"
+	              input="t.search.recherche" attribute="search">
+	        <forward name="searchPage" path="/search-recherche.do" />
+
+	       
+	    </action>
+    <action path="/search-recherche"
+              type="ca.gc.hc.controller.SearchAction"
+              name="SearchForm"
+              scope="request"
+              validate="true"
+              parameter="25"
+              input="t.search.recherche" attribute="search">
+        <forward name="multiplematch" path="t.result.resultat" redirect="false" />
+        <forward name="onematch" path="t.info" redirect="false" />
+        
+    </action>
+      
+    <action path="/search-fast-recherche-rapide"
+              type="ca.gc.hc.controller.ShortcutSearchAction"
+              name="ShortcutSearchForm"
+              scope="request"
+              validate="false"
+              parameter="25"
+              input="t.info">
+        <forward name="multiplematch"
+                 path="t.result.resultat" 
+                 redirect="false" />
+        <forward name="onematch"
+                 path="t.info" 
+                 redirect="false" />
+        
+    </action>
+
+    <action path="/info"
+              type="ca.gc.hc.controller.DisplayInfoAction"
+              name="DrugCodeForm"
+              scope="session"
+              validate="false"
+              input="t.result.resultat">
+        <forward name="success"
+                 path="t.info" 
+                 redirect="false" />
+         
+    </action>
+
+    <action path="/previous-precedent"
+            type="ca.gc.hc.controller.DisplayPreviousPageAction"
+            name="PagerForm"
+            scope="request"
+            validate="false"
+            parameter="25"
+            input="t.result.resultat">
+        <forward name="success"
+                 path="t.result.resultat" 
+                 redirect="false" />
+        
+    </action>
+
+    <action path="/next-suivant"
+            type="ca.gc.hc.controller.DisplayNextPageAction"
+            name="PagerForm"
+            scope="request"
+            validate="false"
+            parameter="25"
+            input="t.result.resultat">
+        <forward name="success"
+                 path="t.result.resultat" 
+                 redirect="false" />
+       
+    </action>
+
+    <action path="/item-iteme" type="ca.gc.hc.controller.DisplayItemAction"  name="viewPmForm"
+              scope="session"
+              validate="false"
+              input="t.info" parameter="method">
+  		 <forward name="error"  path="t.info" redirect="false" />
+	   
+    </action>
+    
+   <action path="/view-afficher" type="ca.gc.hc.controller.DisplayLabelAction"  name="viewPmForm"
+              scope="session"
+              validate="false"
+              input="t.info" parameter="method">
+  		 <forward name="error"  path="t.info" redirect="false" />
+	   
+    </action>
+    
+    <action path="/switchlocale" type="ca.gc.hc.controller.SwitchLanguageAction">
+    </action> 
+		
+	<action path="/error404" type="ca.gc.hc.controller.Error404Action" name="dummyForm" >
+		<forward name="error404" path="t.error.404"/>
+	</action>
+	
+	<action path="/error500" type="ca.gc.hc.controller.Error500Action" name="dummyForm" >
+		<forward name="error500" path="t.error.500"/>
+	</action>
+	
+	 <action path="/timeout" type="ca.gc.hc.controller.TimeoutAction" name="dummyForm" >
+		<forward name="timeout" path="t.timeout"/>
+	</action>    
+  </action-mappings>
+
+ 
+	<!--  message-resources  -->
+	<controller processorClass="org.apache.struts.tiles.TilesRequestProcessor">
+	</controller>
+    <message-resources parameter="resources.ApplicationResources" />
+	<message-resources parameter="resources.CommonLookFeelResources" key="clfRes"/>
+	<message-resources parameter="resources.MessageResources" key="messageRes"/>
+	
+	
+	<!-- 
+   	Add multiple validator resource files by setting the pathnames property 
+   	with a comma delimited list of resource files to load. 
+   	-->
+   	<plug-in className="org.apache.struts.validator.ValidatorPlugIn">
+     		<set-property property="pathnames" value="/org/apache/struts/validator/validator-rules-compressed.xml,
+         	/WEB-INF/validator/validation.xml,
+         	/WEB-INF/validator/validation-bundles.xml,
+         	/WEB-INF/validator/validation-i18nVariables.xml,
+         	/WEB-INF/validator/validation-type.xml,
+         	/WEB-INF/validator/validation-validwhen.xml" />
+     		<set-property property="stopOnFirstError" value="true" />
+   	</plug-in>
+
+
+  <plug-in className="org.apache.struts.tiles.TilesPlugin">
+  <set-property property="definitions-config" value="/WEB-INF/tiles-definitions.xml" /> 
+  <set-property property="definitions-debug" value="2" /> 
+  <set-property property="definitions-parser-details" value="2" /> 
+  <set-property property="definitions-parser-validate" value="true" /> 
+  <set-property property="moduleAware" value="true" /> 
+  </plug-in>
+  
+  </struts-config>
