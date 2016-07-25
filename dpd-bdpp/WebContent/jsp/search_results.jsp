@@ -7,7 +7,17 @@
 <%@ page import="org.apache.struts.Globals" %>
 
 <!-- #BeginBody -->
-
+ <script> 
+ $(document).ready( function() {
+   $('#results').dataTable( {
+     "bSortClasses": false,
+     "bPaginate": true,
+     "bProcessing": true, 
+ 	"bDeferRender": true,
+ 	"bAutoWidth": false
+   } );
+} );
+ </script> 
 <bean:define id="lang" >
 	<bean:message bundle="clfRes" key="label.app.lang" />
 </bean:define>
@@ -51,7 +61,7 @@
 
 <logic:greaterThan name="result_count" value="0">
 	
-		<table class="table table-striped table-condensed wb-tables" data-wb-tables='{ "order" : [] }'>
+		<table id="results" class="table table-striped table-condensed wb-tables" >
 		<caption class="text-left"><bean:message key="table.search.results.caption"/><br><span class="wb-inv"><bean:message key="table.search.results.summary"/></span></caption>
 			<thead>
 				<tr>
