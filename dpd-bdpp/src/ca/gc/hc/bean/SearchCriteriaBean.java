@@ -257,12 +257,12 @@ public class SearchCriteriaBean implements Serializable
 		.append("brandName", getBrandName())
 		.append("activeIngredient", getActiveIngredient())
 		.append("aigNumber", getAigNumber())
-		.append("route", route == null ? null : getRoute().toString())
-		.append("dosage", dosage == null ? null : getDosage().toString())
-		.append("schedule",  schedule == null ? null : getSchedule().toString())
+		.append("route", route == null ? null : getRouteEnumeration())
+		.append("dosage", dosage == null ? null : getDosageEnumeration())
+		.append("schedule",  schedule == null ? null : getScheduleEnumeration())
 		.append("vetSpecies", getVetSpecies())
 		.append("vetSubSpecies", getVetSubSpecies())
-		.append("drugClass",  drugClass == null ? null : getDrugClass().toString())
+		.append("drugClass",  drugClass == null ? null : getDrugClassEnumeration())
 		.toString();
 	}
 	

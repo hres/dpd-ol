@@ -204,7 +204,7 @@ public class SearchForm extends ValidatorForm
 		this.drugCode = null;
 		this.din = null;
 		this.atc = null;
-		this.status = new String[]{ApplicationGlobals.ACTIVE_DRUG_STATUS_ID};
+		this.status = new String[]{"0"}; //Requested by L.Travill June 2016: remove "marketed" as default status
 		this.companyName = null;
 		this.brandName = null;
 		this.activeIngredient = null;
