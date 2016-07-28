@@ -436,16 +436,18 @@ public class SearchDrugDao extends AbstractDao {
 			}
 			Query query = getSession().createSQLQuery(sql);
 
-			int numberOfResults = query.list().size();
 
-			// Save the number of results for later
 			// Save the query for building the Next button
+			request.getSession()
+					.setAttribute(ApplicationGlobals.SQL_QUERY, sql);			
+
+			List queryResults = query.list();			
+			
+			// Save the number of results for later			
+			int numberOfResults = queryResults.size();
 			request.getSession().setAttribute(ApplicationGlobals.RESULT_COUNT,
 					numberOfResults);
-			request.getSession()
-					.setAttribute(ApplicationGlobals.SQL_QUERY, sql);
-			
-			List queryResults = query.list();
+
 
 			log.debug("Search by ATC Query is: " + sql);
 
