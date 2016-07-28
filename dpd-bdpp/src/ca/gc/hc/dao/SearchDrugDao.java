@@ -71,6 +71,16 @@ public class SearchDrugDao extends AbstractDao {
 	private final static int SCHEDULE_E = 13;
 	private final static int SCHEDULE_F = 14;
 	private final static int CLASS_CODE = 15;
+	private final static int INGREDIENT_E = 16;
+	private final static int INGREDIENT_F = 17;
+	private final static int STRENGTH = 18;
+	private final static int STRENGTH_UNIT_E = 19;
+	private final static int STRENGTH_UNIT_F = 20;
+	private final static int DOSAGE_VALUE = 21;
+	private final static int DOSAGE_UNIT_E = 22;
+	private final static int DOSAGE_UNIT_F = 23;
+	private final static int PM_NAME_E = 24;
+	private final static int PM_NAME_F = 25;
 	
 	// used for localized searches
 	private final static String INGREDIENT_COLUMN = "ingredient";	
@@ -471,16 +481,16 @@ public class SearchDrugDao extends AbstractDao {
 			String sql = buildQuery(criteria);
 			Query query = getSession().createSQLQuery(sql);
 
-			int numberOfResults = query.list().size();
-
-			// Save the number of results for later
 			// Save the query for building the Next button
-			request.getSession().setAttribute(ApplicationGlobals.RESULT_COUNT,
-					numberOfResults);
 			request.getSession()
 					.setAttribute(ApplicationGlobals.SQL_QUERY, sql);
 
 			List queryResults = query.list();
+
+			// Save the number of results for later
+			int numberOfResults = queryResults.size();
+			request.getSession().setAttribute(ApplicationGlobals.RESULT_COUNT,
+					numberOfResults);
 
 			if (queryResults.size() > 0) {
 				values = this.populateBeans(queryResults, request);
@@ -966,9 +976,11 @@ public class SearchDrugDao extends AbstractDao {
 			String strCompanyName = criteria.getCompanyName().replace(" ", "%");
 			// wherePortion += (" AND UPPER(co.COMPANY_NAME) LIKE '%" +
 			// strCompanyName.trim().toUpperCase() + "%'");
-			wherePortion += " and translate(upper(co.COMPANY_NAME),'¿¬ƒ«»…À ÃŒœ“‘÷Ÿ⁄€‹','AAACEEEEIIIOOOUUUU') like '%"
+			wherePortion += " and drug.DRUG_CODE in (select drug_code from wqry_drug_product where company_code "
+						+ "in (select company_code from WQRY_COMPANIES co "
+							+ " where translate(upper(co.COMPANY_NAME),'¿¬ƒ«»…À ÃŒœ“‘÷Ÿ⁄€‹','AAACEEEEIIIOOOUUUU') like '%"
 					+ StringsUtil.AsUnAccentedUppercase(strCompanyName.trim())
-					+ "%'";
+					+ "%'))";
 
 		}
 
@@ -1328,7 +1340,7 @@ public class SearchDrugDao extends AbstractDao {
 	 */
 	private List populateDrugProductSummaries(List drugData,
 			HttpServletRequest request) throws NumberFormatException {
-		List val = new ArrayList();
+		List<DrugSummaryBean> val = new ArrayList<DrugSummaryBean>();
 		String pmE = "";
 		String pmF = "";
 		Long drugCode = new Long(0);
@@ -1351,18 +1363,9 @@ public class SearchDrugDao extends AbstractDao {
 				drug.setAiGroupNo((String) list[AI_GROUP_NUMBER]);
 				drug.setClassCode(Long
 						.valueOf(list[CLASS_CODE].toString()));
-
-				// Get product monograph, if any
-				ProductMonograph productMonograph = retrievePM(Long
-						.valueOf(drugCode.toString()));
-
-				if (productMonograph != null) {
-					pmE = (String) productMonograph.getPmEnglishFName();
-					pmF = (String) productMonograph.getPmFrenchFName();
-				} else {
-					pmE = "";
-					pmF = "";
-				}
+				
+				pmE=StringsUtil.emptyForNull((String) list[PM_NAME_E]);
+				pmF=StringsUtil.emptyForNull((String) list[PM_NAME_F]);
 
 				String company = (String) list[COMPANY_NAME];
 				String statusE = (String) list[EXT_STATUS_E];
@@ -1377,7 +1380,17 @@ public class SearchDrugDao extends AbstractDao {
 				String scheduleE = (String) list[SCHEDULE_E];
 				String scheduleF = (String) list[SCHEDULE_F];
 				Schedule schedule = new Schedule(scheduleE, scheduleF);
-				ActiveIngredients firstAI = retrieveFirstAI(drug.getDrugCode());
+				
+				ActiveIngredients firstAI = new ActiveIngredients();
+				firstAI.setDosageUnitE((String) list[DOSAGE_UNIT_E]);
+				firstAI.setDosageUnitF((String) list[DOSAGE_UNIT_F]);
+				firstAI.setDosageValue((String) list[DOSAGE_VALUE]);
+				firstAI.setDrugCode(drugCode);
+				firstAI.setIngredientE((String) list[INGREDIENT_E]);
+				firstAI.setIngredientF((String) list[INGREDIENT_F]);
+				firstAI.setStrength((String) list[STRENGTH]);
+				firstAI.setStrengthUnitE((String) list[STRENGTH_UNIT_E]);
+				firstAI.setStrengthUnitF((String) list[STRENGTH_UNIT_F]);
 
 				DrugSummaryBean bean = new DrugSummaryBean(drug, company,
 						status, pmE, pmF, schedule, firstAI);
@@ -1431,18 +1444,26 @@ public class SearchDrugDao extends AbstractDao {
 				+ "drug.drug_identification_number, drug.company_code, "
 				+ "drug.class, drug.class_f, drug.number_of_ais, drug.ai_group_no, "
 				+ "co.COMPANY_NAME, ste.EXTERNAL_STATUS_ENGLISH, ste.EXTERNAL_STATUS_FRENCH, ste.EXTERNAL_STATUS_CODE, "
-				+ "s.schedule, s.schedule_f, drug.class_code "
+				+ "s.schedule, s.schedule_f, drug.class_code, "
+				+ "i.ingredient, i.ingredient_f, i.strength, i.strength_unit, i.strength_unit_f, "
+				+ "i.DOSAGE_VALUE, i.DOSAGE_UNIT, i.DOSAGE_UNIT_F, "
+				+ "pm.PM_ENGLISH_FNAME, pm.PM_FRENCH_FNAME "
 				+ localizedSummarySortingColumnClause();
 
 		query = query
 				+ "from WQRY_DRUG_PRODUCT drug, WQRY_COMPANIES co, WQRY_STATUS st, "
-				+ "WQRY_STATUS_EXTERNAL ste, wqry_route r, wqry_form f, wqry_schedule s ";
+				+ "WQRY_STATUS_EXTERNAL ste, wqry_route r, wqry_form f, wqry_schedule s, "
+				+ "wqry_active_ingredients i, WQRY_PM_DRUG pm ";
 		query = query + "where drug.DRUG_CODE = st.DRUG_CODE "
 				+ "and st.EXTERNAL_STATUS_CODE = ste.EXTERNAL_STATUS_CODE "
 				+ "and drug.COMPANY_CODE = co.COMPANY_CODE "
 				+ "and drug.drug_code = s.drug_code "
 				+ "and drug.drug_code = r.drug_code "
-				+ "and drug.drug_code = f.drug_code ";
+				+ "and drug.drug_code = f.drug_code "
+				+ "and drug.drug_code = i.drug_code(+) "
+				+ "and drug.drug_code = pm.DRUG_CODE(+) "
+				+ "and i.id = "
+					+ "(select min(id) from wqry_active_ingredients i where drug.drug_code = i.drug_code) ";
 
 		return query;
 	}

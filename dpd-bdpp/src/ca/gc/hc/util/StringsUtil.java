@@ -416,4 +416,15 @@ public class StringsUtil
 		return result;
 	}
 
+    /**
+     * @param s
+     *            An Object (String or null) to evaluate
+     * @return the passed-in String if it is not null, or an empty String
+     *         otherwise
+     * @author Sylvain Larivière 2013-05-01
+     */
+    public static String emptyForNull(Object s) {
+	return (String) (s == null ? new String("") : s);
+    }
+
 }
