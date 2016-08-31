@@ -45,7 +45,7 @@ public class DrugSummaryBean extends BaseBean implements Serializable
 	private String pm;
 	private String pmE;
 	private String pmF;
-	private ActiveIngredients firstAI;	//SL/2009-10-01: the first active ingredient (alphabetically) used
+	private ActiveIngredients firstAI;	//SL/2009-10-01: the first active ingredient used (ordered by id)
 	private String AiStrengthAndDosageText;
 	private Route route;
 	private Form  dosage;
