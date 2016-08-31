@@ -26,6 +26,7 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
+import org.apache.struts.util.PropertyMessageResources;
 
 import ca.gc.hc.util.ApplicationGlobals;
 /**
@@ -96,9 +97,46 @@ public class StartupAction extends Action
 		session.setAttribute("languageLinkUrl", goctemplateclientbean.getLanguageLinkUrl());
 		session.setAttribute("applicationscopebean", applicationscopebean);
 		session.setAttribute("goctemplateclientbean", goctemplateclientbean);
+				   
 
-		   
-		   if(session.isNew()) {
+		/*
+		 * DataTables: For optimal performance, set a maximum search results
+		 * limit after which the Search Results DataTable will operate in
+		 * server-processing mode after initial draw: - only the first 25
+		 * pages will be loaded and displayed in the initial draw - every
+		 * DataTable event (re-sort, results-per-page change, filter) will
+		 * be delegated to the server - the server will respond to events
+		 * with a JSON object containing DataTables-expected parameters and
+		 * appropriately updated search results, based on the special
+		 * parameters sent by the DataTable See
+		 * http://legacy.datatables.net/usage/server-side (until version 10
+		 * or later of DataTables starts being used)
+		 */
+		if (ApplicationGlobals.instance()
+				.getDataTableServerProcessingThreshold() == 0) {
+			PropertyMessageResources res = (PropertyMessageResources) request
+					.getAttribute(Globals.MESSAGES_KEY);
+
+			try {
+				int toggleValue = Integer
+						.parseInt(res
+								.getMessage(ApplicationGlobals.DATA_TABLES_PROCESSING_TOGGLE_KEY));
+				ApplicationGlobals.instance()
+						.setdataTablesProcessingToggleLevel(toggleValue);
+				request.getSession()
+						.setAttribute(
+								ApplicationGlobals.DATA_TABLES_PROCESSING_TOGGLE_VALUE,
+								toggleValue);
+				request.getSession().setAttribute(
+						ApplicationGlobals.PAGE_LENGTH_KEY,
+						ApplicationGlobals.INITIAL_PAGE_LENGTH_VALUE); 
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+		if(session.isNew()) {
 			   try {
 				ApplicationGlobals.instance().refreshAllSearchPageLists();
 				} catch (Exception e) {
