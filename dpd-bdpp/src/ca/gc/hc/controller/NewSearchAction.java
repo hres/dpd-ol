@@ -60,7 +60,6 @@ public final class NewSearchAction extends Action {
 
 		HttpSession session = request.getSession();
 		ActionForward forward = new ActionForward();
-		session.removeAttribute(ApplicationGlobals.SEARCH_RESULT_PAGE_NUMBER);
 		if (session.getAttribute("sessionActive") != null) {
 			strLanguage = request.getParameter("lang");	
 			if ("en".equals(strLanguage)) 
@@ -74,6 +73,16 @@ public final class NewSearchAction extends Action {
 				request.getSession().setAttribute(Globals.LOCALE_KEY, Locale.CANADA_FRENCH);
 			}
 			forward = mapping.findForward("success");
+			request.getSession().removeAttribute(ApplicationGlobals.AJAX_STATUS);
+			request.getSession().removeAttribute(ApplicationGlobals.AJAX_BEAN);
+			request.getSession().removeAttribute(ApplicationGlobals.RESULT_COUNT_KEY);
+			request.getSession().removeAttribute(ApplicationGlobals.SEARCH_RESULT_KEY);
+			request.getSession().removeAttribute(ApplicationGlobals.SQL_QUERY);
+			session.removeAttribute(ApplicationGlobals.QUERY_SEARCH_CRITERIA);
+			session.removeAttribute(ApplicationGlobals.USER_SEARCH_CRITERIA);
+			session.removeAttribute(ApplicationGlobals.SELECTED_PRODUCT);
+			session.removeAttribute(ApplicationGlobals.PAGER_FORM);
+			session.removeAttribute("product_monograph");
 
 		} else {
 			forward = mapping.findForward("sessionTimeout");
