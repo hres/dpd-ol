@@ -6,6 +6,7 @@ package ca.gc.hc.bean;
 import java.io.Serializable;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
+
 import ca.gc.hc.util.ApplicationGlobals;
  
 
@@ -32,7 +33,8 @@ public class SearchCriteriaBean implements Serializable
 	private String vetSpecies;
 	private String vetSubSpecies;   
 	private String[] drugClass = null;
-
+	
+	
 	/**
 	 * @return Active Ingredient Group Number
 	 */
@@ -404,5 +406,4 @@ public class SearchCriteriaBean implements Serializable
 	public String getDrugClassEnumeration() {
 		return enumerateThisStringArray(getDrugClass());	  
 	}
-	
 }
