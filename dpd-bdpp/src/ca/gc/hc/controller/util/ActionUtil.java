@@ -12,13 +12,15 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 import org.apache.struts.action.ActionMapping;
+import org.apache.struts.util.LabelValueBean;
 
 import ca.gc.hc.bean.DrugBean;
 import ca.gc.hc.bean.DrugSummaryBean;
-
+import ca.gc.hc.bean.SearchCriteriaBean;
 import ca.gc.hc.util.ApplicationGlobals;
 import ca.gc.hc.model.AHFS;
 import ca.gc.hc.view.PagerForm;
@@ -30,72 +32,7 @@ public class ActionUtil
 {
   //Get an instance for log4j
   private static Logger logger = Logger.getLogger(ActionUtil.class);
-
-  /*
-   * Help method to populate the page form that control the behavior of the 
-   * page navigation.
-   */
-  public static void setPager(
-    ActionMapping mapping,
-    HttpServletRequest request,
-    PagerForm myForm,
-    int actionType)
-  {
-    int pageNumber = 0;
-    long endIndex;
-    long listSize;
-    
-    listSize = Long.parseLong(request.getSession().getAttribute(ApplicationGlobals.RESULT_COUNT).toString());
-
-    long pageSize = new Long(mapping.getParameter()).longValue();
-    long totalPages = listSize / pageSize;
-    if ((listSize % pageSize) > 0)
-    {
-      totalPages++;
-    }
-
-    int inputPageNumber = myForm.getPage();
-
-    if (actionType == ApplicationGlobals.INITIAL_ACTION)
-    {
-      pageNumber = inputPageNumber;
-    }
-    else if (actionType == ApplicationGlobals.PREVIOUS_PAGE_ACTION)
-    {
-      if (inputPageNumber > 1)
-        pageNumber = inputPageNumber - 1;
-    }
-    else if (actionType == ApplicationGlobals.NEXT_PAGE_ACTION)
-    {
-      if (inputPageNumber < totalPages)
-        pageNumber = inputPageNumber + 1;
-    }
-
-    long offset = pageSize * (pageNumber - 1);
-    long startIndex = offset + 1;
-
-    if (pageNumber < totalPages)
-    {
-      endIndex = startIndex + pageSize - 1;
-    }
-    else
-    {
-      endIndex = listSize;
-    }
-
-    myForm.setTotalCount(new Long(listSize).toString());
-    myForm.setTotalPages(new Long(totalPages).toString());
-    myForm.setPage(pageNumber);
-    myForm.setOffset(new Long(offset).toString());
-    myForm.setPageSize(new Long(pageSize).toString());
-    myForm.setStartIndex(new Long(startIndex).toString());
-    myForm.setEndIndex(new Long(endIndex).toString());
-    myForm.setPagesLeft(new Long(totalPages - pageNumber).toString());
-    myForm.setPassedPages(new Long(pageNumber - 1).toString());
-
-	request.getSession().setAttribute(ApplicationGlobals.PAGER_FORM, myForm);
-  }
-
+  
   public static DrugBean postProcessDrugBean(
     DrugBean bean,
     HttpServletRequest request)
@@ -172,13 +109,46 @@ public class ActionUtil
 			DrugSummaryBean bean = (DrugSummaryBean) list.get(0);
 			statusID = bean.getStatusID().toString();
 		}
-		if (statusID.equals(ApplicationGlobals.ACTIVE_DRUG_STATUS_ID)) {
-			request.getSession().setAttribute(ApplicationGlobals.SELECTED_STATUS, statusID);
-		}else {
-			request.getSession().setAttribute(ApplicationGlobals.SELECTED_STATUS
-				, ApplicationGlobals.DISCONTINUE);
-		}
+		request.getSession().setAttribute(ApplicationGlobals.SELECTED_STATUS, statusID);
 		
+	}
+
+	/**
+	 * @param drugClasseCodes
+	 *            A String array containing the user-selected codes
+	 * @param session
+	 *            The current HttpSession
+	 *            <p>
+	 *            Creates a comma-separated list of localized drug class
+	 *            descriptions as a String and saves it on the current session.
+	 *            Used to display the user search criterion in the search
+	 *            summary results page
+	 *            </p>
+	 * @throws Exception
+	 */
+	public static void mapDrugClassNames(String[] drugClasseCodes, HttpSession session)
+			throws Exception {
+		if (drugClasseCodes.length > 0) {
+			String classNames = "";
+			String name = "";
+			for (String classCode : drugClasseCodes) {
+				// getUniqueDrugClasses() is localized
+				List<LabelValueBean> classes = ApplicationGlobals.instance()
+						.getUniqueDrugClasses();
+				for (LabelValueBean drugClass : classes) {
+					name = drugClass.getLabel();
+					if (drugClass.getValue().equals(classCode)) {
+						classNames = classNames.concat(name + ", ");
+						break;
+					}
+				}
+			}
+			session.setAttribute(ApplicationGlobals.DRUG_CLASS_NAMES,
+					classNames.substring(0, classNames.lastIndexOf(",")));
+		} else {
+			session.removeAttribute(ApplicationGlobals.DRUG_CLASS_NAMES);
+		}
+
 	}
 
 }
