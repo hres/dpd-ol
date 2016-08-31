@@ -2,26 +2,17 @@
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
 <!-- #BeginEditable "body" -->
-<%@ page import="org.apache.struts.Globals" %>
+<%@page import="ca.gc.hc.util.ApplicationGlobals"%>
 
 <!-- #BeginBody -->
- <script> 
- $(document).ready( function() {
-   $('#results').dataTable( {
-     "bSortClasses": false,
-     "bPaginate": true,
-     "bProcessing": true, 
- 	"bDeferRender": true,
- 	"bAutoWidth": false
-   } );
-} );
- </script> 
+
+ 
 <bean:define id="lang" >
 	<bean:message bundle="clfRes" key="label.app.lang" />
 </bean:define>
- 
 <% 
    java.util.HashMap params= new java.util.HashMap();
    params.put("lang", lang);
@@ -59,23 +50,54 @@
 
 <h2><bean:message key="label.search.results"/></h2>
 
-<logic:greaterThan name="result_count" value="0">
-	
-		<table id="results" class="table table-striped table-condensed wb-tables" >
-		<caption class="text-left"><bean:message key="table.search.results.caption"/><br><span class="wb-inv"><bean:message key="table.search.results.summary"/></span></caption>
+<c:choose>
+	<c:when test="${result_count > 0 }">
+		<c:set var="dataTableProcessingToggle" value="<%=session.getAttribute(ApplicationGlobals.DATA_TABLES_PROCESSING_TOGGLE_VALUE)%>"/>
+		<c:choose>
+			<c:when test='${result_count >= $sessionScope.dataTables.toggle.value}'>
+				<c:set var ='dataTableProcessing' value='{ "order" : [3, "asc"]}'/>
+			</c:when>
+			<c:otherwise>
+				<c:set var='dataTableProcessing' value='{ "order" : [3, "asc"],
+				"bServerSide": true,
+				"bProcessing": true,
+				"sAjaxSource": "./search-recherche.do",
+				"sServerMethod" : "POST",
+				"sPaginationType": "full_numbers",
+				"aoColumns": [
+		            { "mData": "status", "defaultContent": "" },
+		            { "mData": "din", "defaultContent": "" },
+		            { "mData": "company", "defaultContent": "" },
+		            { "mData": "brand", "defaultContent": "" },
+		            { "mData": "drugClass", "defaultContent": "" },
+		            { "mData": "pm", "defaultContent": "" },
+		            { "mData": "schedule", "defaultContent": "" },
+		            { "mData": "aiNum", "defaultContent": "" },
+		            { "mData": "majorAI", "defaultContent": "" },
+		            { "mData": "AIStrength", "defaultContent": "", "bSearchable": false, "bSortable": false } 
+		        	],
+		        "iDisplayLength": ${page_length},
+		        "iDeferLoading": ${result_count}
+		         }'/>
+			</c:otherwise>
+		</c:choose>
+		
+		<table id="results" class="table table-striped table-condensed wb-tables" 
+			data-wb-tables='${dataTableProcessing}'>
+			<caption class="text-left"><bean:message key="table.search.results.caption"/><br><span class="wb-inv"><bean:message key="table.search.results.summary"/></span></caption>
 			<thead>
 				<tr>
 					<th id="status" scope="col"><bean:message key="label.results.status"/></th>
 					<th id="din" scope="col"><bean:message key="label.results.din"/></th>
 					<th id="company" scope="col"><bean:message key="label.results.company"/></th>
 					<th id="brand" scope="col"><bean:message key="label.results.product"/></th>
-					<th id="class" scope="col"><bean:message key="label.results.drug.class"/></th>
+					<th id="drugClass" scope="col"><bean:message key="label.results.drug.class"/></th>
 					<th id="pm" scope="col"><bean:message key="label.results.pm"/>
 						<sup id="fn1-rf"><a class="fn-lnk" href="#fn1"><span class="wb-inv"><bean:message key="label.results.see.footnote"/> </span>1</a></sup>
 					</th>
 
 					<th id="schedule" scope="col"><bean:message key="label.results.schedule"/></th>
-					<th id="num" scope="col"><bean:message key="label.results.ai.count"/> 
+					<th id="aiNum" scope="col"><bean:message key="label.results.ai.count"/> 
 						<sup id="fn2-rf"><a class="fn-lnk" href="#fn2"><span class="wb-inv"><bean:message key="label.results.see.footnote"/> </span>2</a></sup>
 					</th>
 					<th id="majorAI" scope="col"><bean:message key="label.results.ai.major"/>
@@ -189,7 +211,7 @@
 		 			</logic:notEmpty>
 		 		</td>
 			</tr>
-			  </logic:iterate> 
+			</logic:iterate>
 			 </tbody>
 		</table>
 		<aside class="wb-fnote wb-fnote-inited" role="note">
@@ -212,13 +234,12 @@
 					<p class="fn-rtn"><a href="#fn3-rf"><span class="wb-inv"><bean:message key="label.results.return.to.footnote"/> </span>3<span class="wb-inv"> <bean:message key="label.results.referrer"/></span></a></p>
 				</dd>
 			</dl>
-		</aside> 
-	
-</logic:greaterThan>
-	
-<logic:lessEqual name="result_count" value="0">
-	<div class="alert alert-info"><h3><bean:message bundle="messageRes" key="message.no.match" /></h3><p><bean:message bundle="messageRes" key="message.no.records" /></p></div>
-</logic:lessEqual>	
+		</aside>
+	</c:when>
+	<c:otherwise>
+		<div class="alert alert-info"><h3><bean:message bundle="messageRes" key="message.no.match" /></h3><p><bean:message bundle="messageRes" key="message.no.records" /></p></div>	
+	</c:otherwise>
+</c:choose>
 
 	<div class="row mrgn-tp-md">
 		<div class="col-md-6">
