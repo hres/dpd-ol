@@ -15,6 +15,7 @@ import org.apache.struts.Globals;
 import org.apache.struts.util.LabelValueBean;
 import org.hibernate.HibernateException;
 
+import ca.gc.hc.bean.AjaxBean;
 import ca.gc.hc.dao.SearchDrugDao;
 import ca.gc.hc.model.DrugClass;
 import ca.gc.hc.model.DrugStatus;
@@ -35,6 +36,7 @@ public final class ApplicationGlobals {
 	private HashMap<String,List<LabelValueBean>> uniqueRoutesMap = new HashMap<String,List<LabelValueBean>>();
 	private HashMap<String,List<LabelValueBean>> uniqueSchedulesMap = new HashMap<String,List<LabelValueBean>>();
 
+	
 	public static final String APP_VERSION = "1.0 beta1";
 	public static final String LANG_EN = Locale.ENGLISH.getLanguage();
 	public static final String LANG_FR = Locale.FRENCH.getLanguage();
@@ -44,14 +46,11 @@ public final class ApplicationGlobals {
 	private static final String DISCONTINUED_ALL_FR = "Discontinué (Tout)";
 	public static final String ACTIVE_DRUG_STATUS_ID = "2"; //This needs to equal the wqry_status.status_code of 'Marketed (Notified)',
 															// or any equivalent description that means "active"
-	public final static String DISCONTINUED_BY_COMPANY_POST_MARKET_ID = "4";
-	public final static String DISCONTINUED_TRANSITIONED_NHPD_ID = "26";	//SL/2012-06-13: ADR0106: now excluded from search page status combo box
 	public final static String APPROVED = "99";
 	
 	
 	//Keys used to store instances in Application, Session, or Request attributes
 	public static final String APP_GLOBALS = "appGlobals"; //Application
-	static public final String SEARCH_RESULT_PAGE_NUMBER = "page";
 	public static final String DRUG_CLASS_NAMES = "drugClassNames";
 	public static final String ERROR_PSWD_EXCEED_TIME_CHANGE = "error_pswd_exceed_time_change";
 	public static final String ERROR_OBSERVATION_COMMENT = "error.observation_comment";
@@ -82,44 +81,30 @@ public final class ApplicationGlobals {
 	 * and search criteria object.
 	 */
 	static public final String SEARCH_RESULT_KEY = "dpd.search.results";
-	static public final String SEARCH_CRITERIA = "dpd.search.criteria";
+	static public final String USER_SEARCH_CRITERIA = "dpd.search.criteria"; // as typed by user: used in GUI
 	static public final String SELECTED_PRODUCT = "dpd.selected.product";
 	static public final String PAGER_FORM = "dpd.pager";
 	static public final String SELECTED_STATUS = "dpd.selected.status";
-	static public final String RESULT_COUNT = "result_count";
-	
-	/**
-	 * The english text value of the drug status
-	 * SL/2010-01-28 NOTE:
-	 *  - Drug status is now determined using the status_code and not the status description any more.
-	 *  - Drugs having a status_code equal to ApplicationGlobals.ACTIVE_DRUG_STATUS_ID 
-	 *  (currently "Marketed (Notified)" are considered "active"
-	 *  
-	 */
-//	public final static String ACTIVE_DRUG_STATUS = "MARKETED (NOTIFIED)";
-//	public final static String DISCONTINUED_DRUG_STATUS_1 =
-//	  "INACTIVATED (BY COMPANY POST-MARKET)";
-//	public final static String DISCONTINUED_DRUG_STATUS_2 =
-//	  "INACTIVATED (BY COMPANY ADMINISTRATIVE)";
-//	public final static String DISCONTINUED_DRUG_STATUS_3 =
-//	  "INACTIVATED (GP TO DIN CONVERSION)";
-//	public final static String DISCONTINUED_DRUG_STATUS_4 =
-//	  "INACTIVATED (NONCOMPLIANT-ANN/COST REC)";
 
+	//DataTables
+	static public final String QUERY_SEARCH_CRITERIA = "dpd.query.search.criteria"; // with quotes doubled: used for queries
+	static public final String PAGE_LENGTH_KEY = "page_length";
+	static public final int INITIAL_PAGE_LENGTH_VALUE = 25;
+	static public final String RESULT_COUNT_KEY = "result_count";
+	static public final String DATA_TABLES_PROCESSING_TOGGLE_KEY = "DT.server.processing.results.toggle";
+	static public final String DATA_TABLES_PROCESSING_TOGGLE_VALUE = "dataTables.toggle.value";
+	static public final String AJAX_BEAN = "ajax.bean";
+	static public final String AJAX_STATUS = "ajax.status"; 
+	private int dataTablesProcessingToggleLevel = 0;
+	/* index of the Brand name column in the DataTable */
+	public static final String DATA_TABLE_BRAND_NAME_COLUMN = "3";
+	
+	
 	public final static String ACTIVE_CODE = "A";
 	public final static String DISCONTINUE_CODE = "D";
 	public final static Long APPROVED_STATUS_CODE = 1L;
 
-//	public final static String ACTIVE = "3";
-	public final static String DISCONTINUE = "0";
-
-	/**
-	 * The page navigation action typ
-	 */
-	public final static int INITIAL_ACTION = 0;
-	public final static int NEXT_PAGE_ACTION = 1;
-	public final static int PREVIOUS_PAGE_ACTION = 2;
-
+	
 	/**
 	* String constants defined for the resource bundle for the redirect page.
 	*/
@@ -134,6 +119,7 @@ public final class ApplicationGlobals {
 	public final static Long RADIOPHARMACEUTICAL_CLASS_CODE = 9L;
 	public final static String NOT_APPLICABLE_E = "Not Applicable";
 	public final static String NOT_APPLICABLE_F = "Sans objet";
+	
 	
 	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ApplicationGlobals.class);
 	
@@ -594,6 +580,12 @@ public final class ApplicationGlobals {
 			uniqueListItems.add(new LabelValueBean(localizedDrugClass, c.getDrugClassId().toString()));
 		}
 		drugClassMap.put(language, uniqueListItems);
+	}
+	public int getDataTableServerProcessingThreshold() {
+		return dataTablesProcessingToggleLevel;
+	}
+	public void setdataTablesProcessingToggleLevel(int dataTablesProcessingToggleLevel) {
+		this.dataTablesProcessingToggleLevel = dataTablesProcessingToggleLevel;
 	}
 	
 }
