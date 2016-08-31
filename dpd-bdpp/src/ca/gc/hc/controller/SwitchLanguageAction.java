@@ -15,6 +15,8 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 
+import ca.gc.hc.bean.SearchCriteriaBean;
+import ca.gc.hc.controller.util.ActionUtil;
 import ca.gc.hc.util.ApplicationGlobals;
 
 /*******************************************************************************
@@ -37,8 +39,7 @@ public class SwitchLanguageAction extends Action {
         applicationscopebean.setRequest(request);
         ApplicationBaseSettingsBean goctemplateclientbean = new ApplicationBaseSettingsBean();
         goctemplateclientbean.setRequest(request);
-
-
+		
         if (strLang.equals("fr")) {
 
             session.setAttribute(Globals.LOCALE_KEY, new Locale("fr", "CA"));
@@ -57,6 +58,15 @@ public class SwitchLanguageAction extends Action {
                          .instance().getUserLocale());
             session.setAttribute("lang", "en");
         }
+        
+		/*
+		 * Re-map the selected drug class codes to their descriptions, save
+		 * these descriptions in a single comma-separated String, and
+		 * store in a session attribute for displaying back to the user
+		 * in the gui.
+		 */
+        SearchCriteriaBean crit = (SearchCriteriaBean) session.getAttribute(ApplicationGlobals.USER_SEARCH_CRITERIA);
+		ActionUtil.mapDrugClassNames(crit.getDrugClass(), session);
      
 	     String strStaticFallBackFilePath = goctemplateclientbean.getStaticFallbackFilePath();
 	     String strRefTopStaticFile = applicationscopebean.getStaticFile(strStaticFallBackFilePath, "gcweb", "refTop.html");
