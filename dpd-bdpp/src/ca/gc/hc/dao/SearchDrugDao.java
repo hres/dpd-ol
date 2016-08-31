@@ -7,16 +7,23 @@
  */
 package ca.gc.hc.dao;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
+import org.hibernate.SQLQuery;
+import org.hibernate.type.IntegerType;
 
+import ca.gc.hc.bean.AjaxBean;
+import ca.gc.hc.bean.AjaxBean.AjaxRequestStatus;
 import ca.gc.hc.bean.DrugBean;
 import ca.gc.hc.bean.DrugSummaryBean;
 import ca.gc.hc.bean.SearchCriteriaBean;
@@ -35,6 +42,7 @@ import ca.gc.hc.model.Route;
 import ca.gc.hc.model.Schedule;
 import ca.gc.hc.model.Veterinary;
 import ca.gc.hc.util.ApplicationGlobals;
+import ca.gc.hc.util.DataTableColumn;
 import ca.gc.hc.util.StringsUtil;
 
 public class SearchDrugDao extends AbstractDao {
@@ -90,6 +98,9 @@ public class SearchDrugDao extends AbstractDao {
 	private final static String BRAND_NAME_COLUMN = "brand_name";
 	
 	private final static String DRUG_CLASS_COLUMN = "class_code";
+	
+	private boolean isAjaxRequest = false;
+	private AjaxBean ajaxBean = null;
 
 	/**
 	 * The local instance of the LOG4J Logger.
@@ -105,12 +116,12 @@ public class SearchDrugDao extends AbstractDao {
 				&& criteria.getDrugCode().longValue() > 0) {
 			return searchDrugByDrugCode(criteria.getDrugCode(), request);
 		} else if (criteria.getDin() != null && criteria.getDin().length() > 0) {
-			return searchDrugByDIN(criteria.getDin(), request);
+			return searchDrugByDIN(criteria, request);
 		} else if (criteria.getCompanyCode() != null
 				&& criteria.getCompanyCode().longValue() > 0) {
 			return searchDrugByCompanyCode(criteria, request);
 		} else if (criteria.getAtc() != null && criteria.getAtc().length() > 0) {
-			return searchDrugByATC(criteria.getAtc(), request);
+			return searchDrugByATC(criteria, request);
 		} else {
 			return searchDrugByNames(criteria, request);
 		}
@@ -132,7 +143,6 @@ public class SearchDrugDao extends AbstractDao {
 			log.debug("Search By drugCode Query is: " + query);
 
 			if (drugProducts.size() > 0) {
-
 				for (Iterator it = drugProducts.iterator(); it.hasNext();) {
 					DrugBean drugInfo = new DrugBean();
 					DrugProduct drug = (DrugProduct) it.next();
@@ -213,25 +223,20 @@ public class SearchDrugDao extends AbstractDao {
 	 * Gets the a list of Drugs by a DIN number Returns an empty List if none
 	 * are found that match.
 	 * 
-	 * @param criteria
+	 * @param criteria  The current SearchCriteriaBean instance, to adapt the sorting
+	 * clause where DataTable server processing is required
 	 * @return the List of Drugs by a DIN number Updated and refactored
 	 *         SL/2009-10-02 for additional fields returned
 	 */
-	private List searchDrugByDIN(String din, HttpServletRequest request)
+	private List searchDrugByDIN(SearchCriteriaBean criteria, HttpServletRequest request)
 			throws Exception {
 		List val = new ArrayList();
 		try {
-			String query = this.basicDrugSummarySelect();
-			query = query + "and drug.DRUG_IDENTIFICATION_NUMBER = '" + din
-					+ "' " + localizedSummaryOrderByClause();
+			String query = this.basicDrugSummarySelect(criteria);
+			query = query + "and drug.DRUG_IDENTIFICATION_NUMBER = '" + criteria.getDin()
+					+ "' " + localizedSummaryOrderByClause(criteria);
 
 			List drugInfos = getSession().createSQLQuery(query).list();
-
-			int numberOfResults = drugInfos.size();
-
-			// Save the number of results for later
-			request.getSession().setAttribute(ApplicationGlobals.RESULT_COUNT,
-					numberOfResults);
 
 			log.debug("Search By DIN Query is: " + query);
 
@@ -245,7 +250,7 @@ public class SearchDrugDao extends AbstractDao {
 				log.error("Stack Trace: ", he);
 				StringBuffer message = new StringBuffer(
 						"Search Drug Product By DIN [");
-				message.append(din);
+				message.append(criteria.getDin());
 				message.append("] failed");
 				throw new Exception(message.toString());
 			}
@@ -323,7 +328,8 @@ public class SearchDrugDao extends AbstractDao {
 	 * Gets the a list of Drugs by a Company Code Returns an empty List if none
 	 * are found that match.
 	 * 
-	 * @param criteria
+	 * @param criteria  The current SearchCriteriaBean instance, to adapt the sorting
+	 * clause where DataTable server processing is required
 	 * @return the List of Drugs by a Company Code Updated SL/2009-10-14 for
 	 *         additional criteria
 	 */
@@ -332,58 +338,18 @@ public class SearchDrugDao extends AbstractDao {
 			HttpServletRequest request) throws Exception {
 		List val = new ArrayList();
 		try {
-			int pageNumber;
-
-			try {
-				pageNumber = Integer.parseInt(request.getSession()
-						.getAttribute(
-								ApplicationGlobals.SEARCH_RESULT_PAGE_NUMBER)
-						.toString());
-			} catch (NullPointerException e) {
-				pageNumber = 1;
-			}
-			String queryString = "";
-			queryString = this.basicDrugSummarySelect()
-					+ " and drug.COMPANY_CODE = "
-					+ criteria.getCompanyCode().longValue();
-
-			if (criteria.getStatusCode() != null) {
-				if (criteria.getStatusCode().equals("0")) { // "Discontinued
-															// (ALL)
-					queryString = queryString + " and st.status_code <> "
-							+ ApplicationGlobals.ACTIVE_DRUG_STATUS_ID;
-				} else {
-					queryString = queryString + " and st.status_code = "
-							+ criteria.getStatusCode();
-				}
-			}
-			queryString = queryString + localizedSummaryOrderByClause();
+			String queryString = buildSearchByCompanyCodeSql(criteria);
 
 			List drugInfos = getSession().createSQLQuery(queryString).list();
 
-			int numberOfResults = drugInfos.size();
-
-			// Save the number of results for later
-			// Save the query for building the Next button
-			request.getSession().setAttribute(ApplicationGlobals.RESULT_COUNT,
-					numberOfResults);
-			/*
-			 * SL/2012-08-09 Bug fix: the query string must be saved as it is
-			 * used by the DisplayNextPage action
-			 */
+			// Save the query for possible DataTable server processing
 			request.getSession().setAttribute(ApplicationGlobals.SQL_QUERY,
 					queryString);
 
 			log.debug("Search By Company Code Query is: " + queryString);
-
 			
-			Query query = getSession().createSQLQuery(
-					request.getSession().getAttribute(
-							ApplicationGlobals.SQL_QUERY).toString());
-			List queryResults = query.list();
-
-			if (queryResults.size() > 0) {
-				val = this.populateBeans(queryResults, request);
+			if (drugInfos.size() > 0) {
+				val = this.populateBeans(drugInfos, request);
 			}
 		} catch (HibernateException he) {
 			if (he.getMessage().indexOf(DUPLICATE_ROW_EXCEPTION_MSG) > 0) {
@@ -404,51 +370,49 @@ public class SearchDrugDao extends AbstractDao {
 		return val;
 	}
 
+	private String buildSearchByCompanyCodeSql(SearchCriteriaBean criteria) {
+		String queryString;
+		queryString = this.basicDrugSummarySelect(criteria)
+				+ " and drug.COMPANY_CODE = "
+				+ criteria.getCompanyCode().longValue();
+
+		if (criteria.getStatusCode() != null) {
+			queryString = queryString + " and st.status_code = "
+						+ criteria.getStatusCode();
+		}
+		queryString = queryString + localizedSummaryOrderByClause(criteria);
+		return queryString;
+	}
+
 	/***************************************************************************
 	 * Gets the a list of Drugs by ATC Returns an empty List if none are found
 	 * that match.
 	 * 
-	 * @param criteria
+	 * @param criteria  The current SearchCriteriaBean instance, to adapt the sorting
+	 * clause where DataTable server processing is required
 	 * @return the List of Drugs by a ATC
 	 */
-	private List searchDrugByATC(String atc, HttpServletRequest request)
+	private List searchDrugByATC(SearchCriteriaBean criteria, HttpServletRequest request)
 			throws Exception {
 		List val = new ArrayList();
 		try {
-			String sql = this.basicDrugSummarySelect();
+			String sql = this.basicDrugSummarySelect(criteria);
 			sql = sql + " and drug.DRUG_CODE in";
 			sql = sql
 					+ " (select distinct d.DRUG_CODE from WQRY_DRUG_PRODUCT d, WQRY_ATC atc";
 			sql = sql + " where d.DRUG_CODE = atc.DRUG_CODE";
-			sql = sql + " and atc.TC_ATC_NUMBER LIKE '" + atc.toUpperCase()
+			sql = sql + " and atc.TC_ATC_NUMBER LIKE '" + criteria.getAtc().toUpperCase()
 					+ "%'";
-			sql = sql + ")" + localizedSummaryOrderByClause();
+			sql = sql + ")" + localizedSummaryOrderByClause(criteria);
 
-			int pageNumber;
-
-			try {
-				pageNumber = Integer.parseInt(request.getSession()
-						.getAttribute(
-								ApplicationGlobals.SEARCH_RESULT_PAGE_NUMBER)
-						.toString());
-			} catch (NullPointerException e) {
-				pageNumber = 1;
-			}
 			Query query = getSession().createSQLQuery(sql);
 
-
-			// Save the query for building the Next button
+			// Save the query for possible DataTable server processing
 			request.getSession()
 					.setAttribute(ApplicationGlobals.SQL_QUERY, sql);			
 
 			List queryResults = query.list();			
 			
-			// Save the number of results for later			
-			int numberOfResults = queryResults.size();
-			request.getSession().setAttribute(ApplicationGlobals.RESULT_COUNT,
-					numberOfResults);
-
-
 			log.debug("Search by ATC Query is: " + sql);
 
 			val = this.populateBeans(queryResults, request);
@@ -461,7 +425,7 @@ public class SearchDrugDao extends AbstractDao {
 				log.error("Stack Trace: ", he);
 				StringBuffer message = new StringBuffer(
 						"Search Drug Product By ATC [");
-				message.append(atc);
+				message.append(criteria);
 				message.append("] failed");
 				throw new Exception(message.toString());
 			}
@@ -480,19 +444,14 @@ public class SearchDrugDao extends AbstractDao {
 			HttpServletRequest request) throws Exception {
 		List values = new ArrayList();
 		try {
-			String sql = buildQuery(criteria);
+			String sql = buildSearchByNamesSql(criteria);
 			Query query = getSession().createSQLQuery(sql);
 
-			// Save the query for building the Next button
+			// Save the query for possible DataTable server processing
 			request.getSession()
 					.setAttribute(ApplicationGlobals.SQL_QUERY, sql);
 
 			List queryResults = query.list();
-
-			// Save the number of results for later
-			int numberOfResults = queryResults.size();
-			request.getSession().setAttribute(ApplicationGlobals.RESULT_COUNT,
-					numberOfResults);
 
 			if (queryResults.size() > 0) {
 				values = this.populateBeans(queryResults, request);
@@ -953,15 +912,21 @@ public class SearchDrugDao extends AbstractDao {
 
 	// SL/2013-02-13: Added Translate statements to sql to allow
 	// accent-insensitive free-text searches
-	private String buildQuery(SearchCriteriaBean criteria)
+	private String buildSearchByNamesSql(SearchCriteriaBean criteria)
 			throws HibernateException {
-		// String status = ApplicationGlobals.ACTIVE_DRUG_STATUS;
-		// String status1 = ApplicationGlobals.DISCONTINUED_DRUG_STATUS_1;
-		// String status2 = ApplicationGlobals.DISCONTINUED_DRUG_STATUS_2;
-		//		
-		// String status3 = ApplicationGlobals.DISCONTINUED_DRUG_STATUS_3;
-		// String status4 = ApplicationGlobals.DISCONTINUED_DRUG_STATUS_4;
 
+		StringBuffer query = new StringBuffer(basicDrugSummarySelect(criteria));
+		query.append(basicDrugSummaryFromClause(criteria));
+		query.append(basicDrugSummaryWhereClause(criteria));
+		query.append(CriteriaDrugSummaryWhereClause(criteria));
+		query.append(localizedSummaryOrderByClause(criteria));
+
+		log.debug("Search by Names Query is: " + query);
+		
+		return query.toString();
+	}
+
+	private String CriteriaDrugSummaryWhereClause(SearchCriteriaBean criteria) {
 		String wherePortion = ""; // " WHERE drug.drug_code = status.drug_code";
 
 		if (criteria.getStatusCode() != null) {
@@ -1148,12 +1113,7 @@ public class SearchDrugDao extends AbstractDao {
 					criteria.getDrugClass(), wherePortion, DRUG_CLASS_CRITERIA);
 
 		}
-
-		String query = this.basicDrugSummarySelect();
-		query = query + wherePortion + localizedSummaryOrderByClause();
-
-		log.debug("Search by Names Query is: " + query);
-		return query;
+		return wherePortion;
 	}
 
 	private String includeSelectedCriteriaItems(String[] items,
@@ -1321,7 +1281,7 @@ public class SearchDrugDao extends AbstractDao {
 		for (int i = 0; i < anAra.length; i++) {
 			if(!"0".equals(anAra[i])) { //disregard 0 as it corresponds to "Select All" and was multi-selected in
 				String apostrophe = isVarcharColumn ? "'" : "";
-				// collect all routes in the criteria, comma-separated
+				// collect all items in the criteria array, comma-separated
 				string += apostrophe + anAra[i].concat(apostrophe).concat(", ");
 			}
 		}
@@ -1399,22 +1359,7 @@ public class SearchDrugDao extends AbstractDao {
 
 				val.add(bean);
 			}
-			/*
-			 * SL/2012-07-19 - ADR0269: Do not systematically create DrugBeans
-			 * with single results (searchDrugByDrugCode returns a DrugBean that
-			 * is meant for the product information page): it could also be that
-			 * we got here because there is a single additional summary result
-			 * to display when the user clicks on 'Next Results'. This logic was
-			 * refactored into method populateBeans, as it applies to
-			 * searchDrugByCompanyCode, searchDrugByATC, and searchDrugByNames
-			 * as well.
-			 */
-			// int resultCount =
-			// Integer.parseInt(request.getSession().getAttribute(ApplicationGlobals.RESULT_COUNT).toString());
-			// if (resultCount == 1) {
-			// val.clear();
-			// val.addAll(searchDrugByDrugCode(drugCode, request));
-			// }
+
 		} catch (NumberFormatException n) {
 			log.error("Stack Trace: ", n);
 			StringBuffer message = new StringBuffer(
@@ -1430,44 +1375,68 @@ public class SearchDrugDao extends AbstractDao {
 	}
 	
 	/**
-	 * @author Sylvain LariviËre 2009-10-05
+	 * @author Sylvain LariviËre 2009-10-05, 2016-08-22
+	 * @param criteria
+	 *            The current SearchCriteriaBean instance.
 	 * @return The basic Select statement common to all returned DrugProduct
 	 *         summaries
-	 * @see populateDrugProductSummaries Updated 2012-06-07 to uncomment French
-	 *      lists implementation now that content is translated
+	 *         <p>
+	 *         Updated 2012-06-07 to uncomment French lists implementation now
+	 *         that content is translated, and 2016-08-22 to implement DataTable
+	 *         Server-side processing.
+	 *         </p>
+	 * @see populateDrugProductSummaries
 	 */
 	/*
 	 * NOTE that the order of fields in the SELECT clause below, except for the
-	 * localizedSummarySortingColumnClause, MUST match the class-level
+	 * localizedSummaryBrandNameSortingClause, MUST match the class-level
 	 * positional constants in the class declarations
 	 */
-	private String basicDrugSummarySelect() {
-		String query = "select distinct drug.drug_code, drug.brand_name, drug.brand_name_F, "
-				+ "drug.drug_identification_number, drug.company_code, "
-				+ "drug.class, drug.class_f, drug.number_of_ais, drug.ai_group_no, "
-				+ "co.COMPANY_NAME, ste.EXTERNAL_STATUS_ENGLISH, ste.EXTERNAL_STATUS_FRENCH, ste.EXTERNAL_STATUS_CODE, "
-				+ "s.schedule, s.schedule_f, drug.class_code, "
-				+ "i.ingredient, i.ingredient_f, i.strength, i.strength_unit, i.strength_unit_f, "
-				+ "i.DOSAGE_VALUE, i.DOSAGE_UNIT, i.DOSAGE_UNIT_F, "
-				+ "pm.PM_ENGLISH_FNAME, pm.PM_FRENCH_FNAME "
-				+ localizedSummarySortingColumnClause();
+	private String basicDrugSummarySelect(SearchCriteriaBean criteria) {
+		StringBuffer query = new StringBuffer();
+		query.append("select distinct drug.drug_code, drug.brand_name, drug.brand_name_F, ");
+		query.append("drug.drug_identification_number, drug.company_code, ");
+		query.append("drug.class, drug.class_f, drug.number_of_ais, drug.ai_group_no, ");
+		query.append("co.COMPANY_NAME, ste.EXTERNAL_STATUS_ENGLISH, ste.EXTERNAL_STATUS_FRENCH, ste.EXTERNAL_STATUS_CODE, ");
+		query.append("s.schedule, s.schedule_f, drug.class_code, ");
+		query.append("i.ingredient, i.ingredient_f, i.strength, i.strength_unit, i.strength_unit_f, ");
+		query.append("i.DOSAGE_VALUE, i.DOSAGE_UNIT, i.DOSAGE_UNIT_F, ");
+		query.append("pm.PM_ENGLISH_FNAME, pm.PM_FRENCH_FNAME ");
+		query.append(localizedSummaryBrandNameSortingClause(criteria));
 
-		query = query
-				+ "from WQRY_DRUG_PRODUCT drug, WQRY_COMPANIES co, WQRY_STATUS st, "
-				+ "WQRY_STATUS_EXTERNAL ste, wqry_route r, wqry_form f, wqry_schedule s, "
-				+ "wqry_active_ingredients i, WQRY_PM_DRUG pm ";
-		query = query + "where drug.DRUG_CODE = st.DRUG_CODE "
-				+ "and st.EXTERNAL_STATUS_CODE = ste.EXTERNAL_STATUS_CODE "
-				+ "and drug.COMPANY_CODE = co.COMPANY_CODE "
-				+ "and drug.drug_code = s.drug_code "
-				+ "and drug.drug_code = r.drug_code "
-				+ "and drug.drug_code = f.drug_code "
-				+ "and drug.drug_code = i.drug_code(+) "
-				+ "and drug.drug_code = pm.DRUG_CODE(+) "
-				+ "and i.id = "
-					+ "(select min(id) from wqry_active_ingredients i where drug.drug_code = i.drug_code) ";
+		return query.toString();
+	}
+	
+	private String basicDrugSummarySelectForCountOnly(SearchCriteriaBean criteria) {
+		StringBuffer query = new StringBuffer("select distinct count(*) ");
 
-		return query;
+		return query.toString();
+	}
+
+	private String basicDrugSummaryWhereClause(SearchCriteriaBean criteria) {
+		StringBuffer buf = new StringBuffer();
+		buf.append("where drug.DRUG_CODE = st.DRUG_CODE ");
+		buf.append("and st.EXTERNAL_STATUS_CODE = ste.EXTERNAL_STATUS_CODE ");
+		buf.append("and drug.COMPANY_CODE = co.COMPANY_CODE ");
+		buf.append("and drug.drug_code = s.drug_code ");
+		buf.append("and drug.drug_code = r.drug_code ");
+		buf.append("and drug.drug_code = f.drug_code ");
+		buf.append("and drug.drug_code = i.drug_code(+) ");
+		buf.append("and drug.drug_code = pm.DRUG_CODE(+) ");
+		buf.append("and i.id = ");
+		buf.append("(select min(id) from wqry_active_ingredients i where drug.drug_code = i.drug_code) ");
+		
+		return buf.toString();
+	}
+
+	private String basicDrugSummaryFromClause(SearchCriteriaBean criteria) {
+		StringBuffer buf = new StringBuffer();
+		
+		buf.append("from WQRY_DRUG_PRODUCT drug, WQRY_COMPANIES co, WQRY_STATUS st, ");
+		buf.append("WQRY_STATUS_EXTERNAL ste, wqry_route r, wqry_form f, wqry_schedule s, ");
+		buf.append("wqry_active_ingredients i, WQRY_PM_DRUG pm ");
+		
+		return buf.toString();
 	}
 
 	/**
@@ -1496,21 +1465,48 @@ public class SearchDrugDao extends AbstractDao {
 	 *         drug summary search in order to sort brand names by either the
 	 *         value in the user language if it exists, or else by the
 	 *         corresponding value in the other official language.
-	 * @author Sylvain LariviËre 2013-02-07
+	 *         <p>
+	 *         Updated to handle DataTable server-side processing, including
+	 *         sorting on other columns. In this case, the user language cannot
+	 *         change between requests, and so no language checking is required.
+	 *         </p>
+	 * @author Sylvain LariviËre 2013-02-07, 2016-08-11
+	 * @param criteria
+	 *            The current SearchCriteriaBean instance.
 	 */
-	private String localizedSummarySortingColumnClause() {
-		Boolean isFrench = ApplicationGlobals.LANG_FR.equals(ApplicationGlobals
-				.instance().getUserLocale().getLanguage());
+	private String localizedSummaryBrandNameSortingClause(
+			SearchCriteriaBean criteria) {
 		String result = "";
 
-		if (isFrench) {
-			result = ", CASE WHEN DRUG.BRAND_NAME_F IS NOT NULL THEN UPPER(DRUG.BRAND_NAME_F)"
-					+ " WHEN DRUG.BRAND_NAME IS NOT NULL THEN upper(DRUG.BRAND_NAME)"
-					+ " ELSE NULL END AS SORT_COLUMN ";
+		if (isAjaxRequest
+				&& !ajaxBean.getColumnOrderMap().containsKey(new Integer(
+						ApplicationGlobals.DATA_TABLE_BRAND_NAME_COLUMN))) {
+			/*
+			 * User changed the sorting order or the sorting column. Unless this
+			 * is an Ajax request that includes the brand name column as a sort
+			 * column, do nothing: there should be no SORT_COLUMN pseudo-column.
+			 * 
+			 * But if the brand name column IS included, either by itself or
+			 * with other columns, then do include the SORT_COLUMN. It will be
+			 * used in the ORDER BY clause.
+			 */
 		} else {
-			result = ", CASE WHEN DRUG.BRAND_NAME IS NOT NULL THEN UPPER(DRUG.BRAND_NAME)"
-					+ " WHEN DRUG.BRAND_NAME_F IS NOT NULL THEN upper(DRUG.BRAND_NAME_F)"
-					+ " ELSE NULL END AS SORT_COLUMN ";
+			/*
+			 * Always sort by brand name, ascending, and DIN: therefore, this
+			 * CASE clause needs to be added
+			 */
+			Boolean isFrench = ApplicationGlobals.LANG_FR
+					.equals(ApplicationGlobals.instance().getUserLocale()
+							.getLanguage());
+			if (isFrench) {
+				result = ", CASE WHEN DRUG.BRAND_NAME_F IS NOT NULL THEN UPPER(DRUG.BRAND_NAME_F)"
+						+ " WHEN DRUG.BRAND_NAME IS NOT NULL THEN upper(DRUG.BRAND_NAME)"
+						+ " ELSE NULL END AS SORT_COLUMN ";
+			} else {
+				result = ", CASE WHEN DRUG.BRAND_NAME IS NOT NULL THEN UPPER(DRUG.BRAND_NAME)"
+						+ " WHEN DRUG.BRAND_NAME_F IS NOT NULL THEN upper(DRUG.BRAND_NAME_F)"
+						+ " ELSE NULL END AS SORT_COLUMN ";
+			}
 		}
 		return result;
 	}
@@ -1521,13 +1517,44 @@ public class SearchDrugDao extends AbstractDao {
 	 *         is sorted on the brand name column of the table. English and
 	 *         French brand names are sorted together, in a case- and
 	 *         accent-insensitive order.
-	 * @see localizedSummarySortingColumnClause
+	 * @see localizedSummaryBrandNameSortingClause
 	 * @author Sylvain LariviËre 2013-01-08 Updated SL/2013-02-14 to sort case-
-	 *         and accent-insensitively
+	 *         and accent-insensitively, SL/2016-08-19 use the sort column
+	 *         indexes and related sort direction to support DataTable server
+	 *         processing (multi-sorting is possible)
+	 * @param criteria
+	 *            The current SearchCriteriaBean instance.
 	 */
-	private String localizedSummaryOrderByClause() {
-		// return " ORDER BY SORT_COLUMN, DRUG.DRUG_IDENTIFICATION_NUMBER";
-		return " ORDER BY translate(SORT_COLUMN,'¿¬ƒ«»…À ÃŒœ“‘÷Ÿ⁄€‹','AAACEEEEIIIOOOUUUU'), DRUG.DRUG_IDENTIFICATION_NUMBER";
+	private String localizedSummaryOrderByClause(SearchCriteriaBean criteria) {
+		StringBuffer result = new StringBuffer(" ORDER BY ");
+		String translateClause = "translate(SORT_COLUMN,'¿¬ƒ«»…À ÃŒœ“‘÷Ÿ⁄€‹','AAACEEEEIIIOOOUUUU')";
+
+		if (isAjaxRequest) {
+			List<DataTableColumn> sortCols = ajaxBean.getSortColumns();
+			Map<Integer, String> colOrdering = ajaxBean.getColumnOrderMap();
+			
+			for (DataTableColumn col : sortCols) {
+				int index = col.getColumnIndex();
+				/*
+				 * If the entry key matches the brand name column index, apply the case- and
+				 * accent- insensitivity; the entry value is the sort direction.
+				 */
+				if (Integer.parseInt(ApplicationGlobals.DATA_TABLE_BRAND_NAME_COLUMN) == index) {
+					result.append(translateClause);
+				}else{
+					//sort by the field name matching the DataTable column we are sorting on
+					result.append(col.getFieldName() + " ");
+				}
+				result.append(colOrdering.get(Integer.valueOf(index)) + ",");
+			}
+			// remove the last comma
+			result.deleteCharAt(result.length()-1);
+		} else {
+			// initial jsp page sorting
+			result.append(translateClause);
+			result.append(", DRUG.DRUG_IDENTIFICATION_NUMBER");
+		}
+		return result.toString();
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -1537,6 +1564,112 @@ public class SearchDrugDao extends AbstractDao {
 		statusList =getSession().createQuery("select distinct ext from DrugStatus s inner join s.externalStatus ext").list();
 		
 		return statusList;
+	}
+
+	/**
+	 * @param criteria
+	 *            The current SearchCriteriaBean
+	 * @param request
+	 *            The current request
+	 * @return A List of DrugSummaryBean's that is suitable for the current
+	 *         DataTable Ajax request
+	 * @throws Exception
+	 * @author SL/2016-08-22
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public List getNextResults(SearchCriteriaBean criteria,
+			HttpServletRequest request) throws Exception {
+		String sql = "";
+		List values = new ArrayList();
+
+		if ((ajaxBean.getAjaxStatus().equals(AjaxRequestStatus.INACTIVE) || !ajaxBean
+				.isUpdatingPageNumber()) || ajaxBean.isUpdatingSorting()) {
+			/*
+			 * No usable query is available since only a count was obtained so
+			 * far. Generate the query sql.
+			 * 
+			 * Currently, only searching by names or company code could possibly
+			 * generate a number of search results that is above the DataTable
+			 * server-processing threshold. Hence excluding other types of
+			 * searches.
+			 */
+			if (criteria.getCompanyCode() != null
+					&& criteria.getCompanyCode().longValue() > 0) {
+				sql = buildSearchByCompanyCodeSql(criteria);
+			} else {
+				sql = buildSearchByNamesSql(criteria);
+			}
+
+		} else if (ajaxBean.isUpdatingPageNumber()) {
+			// stored sql may be used: search unchanged
+			sql = (String) request.getSession().getAttribute(
+					ApplicationGlobals.SQL_QUERY);
+		} else if (ajaxBean.isUpdatingSorting()) {
+			// re-query with new sort order
+		}
+
+		try {
+			Query query = getSession().createSQLQuery(sql);
+			request.getSession()
+					.setAttribute(ApplicationGlobals.SQL_QUERY, sql);
+
+			query = query.setFirstResult(ajaxBean.getDisplayStart());
+			query.setMaxResults(ajaxBean.getDisplayLength());
+			// query.setFetchSize(pageLength);
+
+			List queryResults = query.list();
+
+			if (queryResults.size() > 0) {
+				values = this.populateDrugProductSummaries(queryResults,
+						request);
+			}
+
+		} catch (HibernateException he) {
+			if (he.getMessage().indexOf(DUPLICATE_ROW_EXCEPTION_MSG) > 0) {
+				log.warn("Data Problem: " + he.getMessage());
+				return values;
+			} else {
+				log.error("Stack Trace: ", he);
+				StringBuffer message = new StringBuffer(
+						"Search Drug Product By ATC [");
+				// message.append(criteria.toString());
+				message.append("] failed");
+				throw new Exception(message.toString());
+			}
+		}
+
+		return values;
+	}
+
+	public int getQueryResultsCount(SearchCriteriaBean crit) {
+		StringBuffer sql = new StringBuffer("select count(*) from (select distinct drug.drug_code, co.COMPANY_NAME, ste.EXTERNAL_STATUS_ENGLISH, s.schedule, i.ingredient, pm.PM_ENGLISH_FNAME ");
+		//int resultsCount=0;
+		
+		sql.append(basicDrugSummaryFromClause(crit));
+		sql.append(basicDrugSummaryWhereClause(crit));
+		sql.append(CriteriaDrugSummaryWhereClause(crit));
+		sql.append(")");
+		
+		int resultsCount= ((BigDecimal) getSession().createSQLQuery(sql.toString()).uniqueResult()).intValue();
+	        //.uniqueResult()).intValue() ;
+		
+		return resultsCount;
+	}
+
+	public boolean isAjaxRequest() {
+		return isAjaxRequest;
+	}
+
+	public void setAjaxRequest(boolean isAjaxRequest) {
+		this.isAjaxRequest = isAjaxRequest;
+	}
+
+	public AjaxBean getAjaxBean() {
+		return ajaxBean;
+	}
+
+	public void setAjaxBean(AjaxBean ajaxBean) {
+		this.ajaxBean = ajaxBean;
 	}
 
 }
