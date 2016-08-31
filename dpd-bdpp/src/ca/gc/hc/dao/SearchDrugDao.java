@@ -12,15 +12,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
-import org.hibernate.SQLQuery;
-import org.hibernate.type.IntegerType;
 
 import ca.gc.hc.bean.AjaxBean;
 import ca.gc.hc.bean.AjaxBean.AjaxRequestStatus;
