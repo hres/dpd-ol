@@ -62,10 +62,10 @@ public final class DispatchSearchAction extends LookupDispatchAction
             HttpServletResponse response) throws Exception {
     	
 		HttpSession session = request.getSession();
-    	if (session.getAttribute("sessionActive") != null) {
-            // Extract information from the request.
-            String method = request.getParameter("method");
+		if (session.getAttribute("sessionActive") != null) {
 
+            // Extract information from the request.
+            String method = request.getParameter("method");            
   
             // If no method supplied, then default to searchLicence.
             if (method == null) {
