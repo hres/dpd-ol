@@ -7,7 +7,6 @@
 package ca.gc.hc.controller.util;
 
 import java.rmi.RemoteException;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -15,15 +14,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
-import org.apache.struts.action.ActionMapping;
 import org.apache.struts.util.LabelValueBean;
 
 import ca.gc.hc.bean.DrugBean;
 import ca.gc.hc.bean.DrugSummaryBean;
-import ca.gc.hc.bean.SearchCriteriaBean;
-import ca.gc.hc.util.ApplicationGlobals;
 import ca.gc.hc.model.AHFS;
-import ca.gc.hc.view.PagerForm;
+import ca.gc.hc.util.ApplicationGlobals;
 
 /**
  * Untility class for the front end.
