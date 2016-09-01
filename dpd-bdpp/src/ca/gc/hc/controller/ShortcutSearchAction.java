@@ -92,8 +92,9 @@ public final class ShortcutSearchAction extends Action {
 				session.setAttribute("org.apache.struts.action.LOCALE",new java.util.Locale("fr","CA"));
 				request.getSession().setAttribute(Globals.LOCALE_KEY, Locale.CANADA_FRENCH);
 			}
-			
-			session.removeAttribute(ApplicationGlobals.SEARCH_CRITERIA);
+
+			session.removeAttribute(ApplicationGlobals.USER_SEARCH_CRITERIA);
+			session.removeAttribute(ApplicationGlobals.QUERY_SEARCH_CRITERIA);
 			session.removeAttribute(ApplicationGlobals.SEARCH_RESULT_KEY);
 			try {
 				if (thisForm.get("no") != null
@@ -126,9 +127,8 @@ public final class ShortcutSearchAction extends Action {
 				/*SL/2012-09-07: If the main search was for a DIN, criteria.getStatusCode() will be null*/
 					if(session.getAttribute(ApplicationGlobals.SELECTED_STATUS)
 							.equals(ApplicationGlobals.ACTIVE_DRUG_STATUS_ID)) {
-						criteria.setStatusCode(ApplicationGlobals.ACTIVE_DRUG_STATUS_ID);
+						criteria.setStatusCode(ApplicationGlobals.SELECTED_STATUS);
 					}else {
-						criteria.setStatusCode(ApplicationGlobals.DISCONTINUE);
 					}
 				//}
 					
@@ -167,7 +167,7 @@ public final class ShortcutSearchAction extends Action {
 						}
 					}
 
-					session.setAttribute(ApplicationGlobals.SEARCH_CRITERIA,
+					session.setAttribute(ApplicationGlobals.USER_SEARCH_CRITERIA,
 								criteria);
 				}else { // no other product from this company
 					messages.add(ActionMessages.GLOBAL_MESSAGE,
@@ -191,14 +191,6 @@ public final class ShortcutSearchAction extends Action {
 
 			messages = null;
 			if (session.getAttribute(ApplicationGlobals.SEARCH_RESULT_KEY) != null) {
-				PagerForm myForm = new PagerForm();
-				myForm.setPage(1);
-				//SL/2012-08-09 ADR0269: Required for Next/Previous Results
-				session.setAttribute(ApplicationGlobals.SEARCH_RESULT_PAGE_NUMBER, 1);
-
-				ActionUtil.setPager(mapping, request, myForm,
-						ApplicationGlobals.INITIAL_ACTION);
-
 				forward = (mapping.findForward("multiplematch"));
 			} else if (session
 					.getAttribute(ApplicationGlobals.SELECTED_PRODUCT) != null) {
