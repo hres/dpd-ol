@@ -52,15 +52,15 @@
 
 <c:choose>
 	<c:when test="${result_count > 0 }">
-		<c:set var="dataTableProcessingToggle" value="<%=session.getAttribute(ApplicationGlobals.DATA_TABLES_PROCESSING_TOGGLE_VALUE)%>"/>
-		<c:choose>
-			<c:when test='${result_count >= $sessionScope.dataTables.toggle.value}'>
-				<c:set var ='dataTableProcessing' value='{ "order" : [3, "asc"]}'/>
+			<c:choose>
+				<c:when test="${result_count < 2000}">
+				<c:set var ='dataTableProcessing' value='{ "order" : [3, "asc"] }'/>
 			</c:when>
-			<c:otherwise>
+		<c:otherwise>
 				<c:set var='dataTableProcessing' value='{ "order" : [3, "asc"],
 				"bServerSide": true,
 				"bProcessing": true,
+				"bFilter": false,
 				"sAjaxSource": "./search-recherche.do",
 				"sServerMethod" : "POST",
 				"sPaginationType": "full_numbers",
@@ -182,7 +182,7 @@
 						<logic:notEmpty name="element" property="aiStrengthLangOfPart">
 		 					<bean:define id="strengthLangOfPart" name="element" property="aiStrengthLangOfPart"></bean:define>
 		 					<bean:write name="element" property="strength"/>
-							<span xml:lang='<%= strengthLangOfPart %>' lang='<%= strengthLangOfPart %>'><bean:write name="element" property="strengthUnit"/></span>
+		 					<span xml:lang='<%= strengthLangOfPart %>' lang='<%= strengthLangOfPart %>'><bean:write name="element" property="strengthUnit"/></span>
 		 				</logic:notEmpty>
 		 				<logic:empty name="element" property="aiStrengthLangOfPart">
 		 					<bean:write name="element" property="aiStrengthText"/>
