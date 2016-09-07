@@ -112,12 +112,12 @@ public class SearchDrugDao extends AbstractDao {
 		if (criteria.getDrugCode() != null
 				&& criteria.getDrugCode().longValue() > 0) {
 			return searchDrugByDrugCode(criteria.getDrugCode(), request);
-		} else if (criteria.getDin() != null && criteria.getDin().length() > 0) {
+		} else if (isSearchingByDin(criteria)) {
 			return searchDrugByDIN(criteria, request);
 		} else if (criteria.getCompanyCode() != null
 				&& criteria.getCompanyCode().longValue() > 0) {
 			return searchDrugByCompanyCode(criteria, request);
-		} else if (criteria.getAtc() != null && criteria.getAtc().length() > 0) {
+		} else if (isSearchingByATC(criteria)) {
 			return searchDrugByATC(criteria, request);
 		} else {
 			return searchDrugByNames(criteria, request);
@@ -220,20 +220,27 @@ public class SearchDrugDao extends AbstractDao {
 	 * Gets the a list of Drugs by a DIN number Returns an empty List if none
 	 * are found that match.
 	 * 
-	 * @param criteria  The current SearchCriteriaBean instance, to adapt the sorting
-	 * clause where DataTable server processing is required
+	 * @param criteria
+	 *            The current SearchCriteriaBean instance, to adapt the sorting
+	 *            clause where DataTable server processing is required
 	 * @return the List of Drugs by a DIN number Updated and refactored
 	 *         SL/2009-10-02 for additional fields returned
 	 */
-	private List searchDrugByDIN(SearchCriteriaBean criteria, HttpServletRequest request)
-			throws Exception {
+	private List searchDrugByDIN(SearchCriteriaBean criteria,
+			HttpServletRequest request) throws Exception {
 		List val = new ArrayList();
-		try {
-			String query = this.basicDrugSummarySelect(criteria);
-			query = query + "and drug.DRUG_IDENTIFICATION_NUMBER = '" + criteria.getDin()
-					+ "' " + localizedSummaryOrderByClause(criteria);
 
-			List drugInfos = getSession().createSQLQuery(query).list();
+		try {
+			StringBuffer query = new StringBuffer(
+					this.basicDrugSummarySelect(criteria));
+			query.append(this.basicDrugSummaryFromClause(criteria));
+			query.append(this.basicDrugSummaryWhereClause(criteria));
+
+			query.append(extractDinCriterion(criteria));
+			query.append(localizedSummaryOrderByClause(criteria));
+
+			List drugInfos = getSession().createSQLQuery(query.toString())
+					.list();
 
 			log.debug("Search By DIN Query is: " + query);
 
@@ -253,6 +260,11 @@ public class SearchDrugDao extends AbstractDao {
 			}
 		}
 		return val;
+	}
+
+	private String extractDinCriterion(SearchCriteriaBean criteria) {
+		return " and drug.DRUG_IDENTIFICATION_NUMBER = '"
+				+ criteria.getDin() + "' ";
 	}
 
 	/**
@@ -368,48 +380,50 @@ public class SearchDrugDao extends AbstractDao {
 	}
 
 	private String buildSearchByCompanyCodeSql(SearchCriteriaBean criteria) {
-		String queryString;
-		queryString = this.basicDrugSummarySelect(criteria)
-				+ " and drug.COMPANY_CODE = "
-				+ criteria.getCompanyCode().longValue();
+		log.debug("isAjaxRequest = " + this.isAjaxRequest);
+		StringBuilder queryString = new StringBuilder(
+				this.basicDrugSummarySelect(criteria));
+		queryString.append(this.basicDrugSummaryFromClause(criteria));
+		queryString.append(this.basicDrugSummaryWhereClause(criteria));
+		queryString.append(" and drug.COMPANY_CODE = "
+				+ criteria.getCompanyCode().longValue());
 
-		if (criteria.getStatusCode() != null) {
-			queryString = queryString + " and st.status_code = "
-						+ criteria.getStatusCode();
+		if (criteria.getStatusCode() != null && !"0".equals(criteria.getStatusCode())) { 
+			queryString.append(" and st.status_code = "
+					+ criteria.getStatusCode());
 		}
-		queryString = queryString + localizedSummaryOrderByClause(criteria);
-		return queryString;
+		queryString.append(localizedSummaryOrderByClause(criteria));
+		return queryString.toString();
 	}
 
 	/***************************************************************************
 	 * Gets the a list of Drugs by ATC Returns an empty List if none are found
 	 * that match.
 	 * 
-	 * @param criteria  The current SearchCriteriaBean instance, to adapt the sorting
-	 * clause where DataTable server processing is required
+	 * @param criteria
+	 *            The current SearchCriteriaBean instance, to adapt the sorting
+	 *            clause where DataTable server processing is required
 	 * @return the List of Drugs by a ATC
 	 */
-	private List searchDrugByATC(SearchCriteriaBean criteria, HttpServletRequest request)
-			throws Exception {
+	private List searchDrugByATC(SearchCriteriaBean criteria,
+			HttpServletRequest request) throws Exception {
 		List val = new ArrayList();
 		try {
-			String sql = this.basicDrugSummarySelect(criteria);
-			sql = sql + " and drug.DRUG_CODE in";
-			sql = sql
-					+ " (select distinct d.DRUG_CODE from WQRY_DRUG_PRODUCT d, WQRY_ATC atc";
-			sql = sql + " where d.DRUG_CODE = atc.DRUG_CODE";
-			sql = sql + " and atc.TC_ATC_NUMBER LIKE '" + criteria.getAtc().toUpperCase()
-					+ "%'";
-			sql = sql + ")" + localizedSummaryOrderByClause(criteria);
+			StringBuffer sql = new StringBuffer(
+					this.basicDrugSummarySelect(criteria));
+			sql.append(this.basicDrugSummaryFromClause(criteria));
+			sql.append(this.basicDrugSummaryWhereClause(criteria));
+			sql.append(extractAtcCriterion(criteria));
+			sql.append(localizedSummaryOrderByClause(criteria));
 
-			Query query = getSession().createSQLQuery(sql);
+			Query query = getSession().createSQLQuery(sql.toString());
 
 			// Save the query for possible DataTable server processing
 			request.getSession()
-					.setAttribute(ApplicationGlobals.SQL_QUERY, sql);			
+					.setAttribute(ApplicationGlobals.SQL_QUERY, sql);
 
-			List queryResults = query.list();			
-			
+			List queryResults = query.list();
+
 			log.debug("Search by ATC Query is: " + sql);
 
 			val = this.populateBeans(queryResults, request);
@@ -428,6 +442,17 @@ public class SearchDrugDao extends AbstractDao {
 			}
 		}
 		return val;
+	}
+
+	private StringBuffer extractAtcCriterion(SearchCriteriaBean criteria) {
+		StringBuffer result = new StringBuffer(" and drug.DRUG_CODE in");
+		result.append(" (select distinct d.DRUG_CODE from WQRY_DRUG_PRODUCT d, WQRY_ATC atc");
+		result.append(" where d.DRUG_CODE = atc.DRUG_CODE");
+		result.append(" and atc.TC_ATC_NUMBER LIKE '"
+				+ criteria.getAtc().toUpperCase() + "%'");
+		result.append(")");
+
+		return result;
 	}
 
 	/***************************************************************************
@@ -919,198 +944,234 @@ public class SearchDrugDao extends AbstractDao {
 		query.append(localizedSummaryOrderByClause(criteria));
 
 		log.debug("Search by Names Query is: " + query);
-		
+
 		return query.toString();
 	}
 
 	private String CriteriaDrugSummaryWhereClause(SearchCriteriaBean criteria) {
-		String wherePortion = ""; // " WHERE drug.drug_code = status.drug_code";
+		String wherePortion = "";
 
-		if (criteria.getStatusCode() != null) {
-			if (!criteria.getStatusCode().equals("0")) { // not Select ALL
-				wherePortion += " and ste.EXTERNAL_STATUS_CODE = "
-						+ criteria.getStatusCode();
+		if (isSearchingByDin(criteria)) {
+			return wherePortion += this.extractDinCriterion(criteria);
+		} else if (isSearchingByATC(criteria)) {
+			return wherePortion += this.extractAtcCriterion(criteria)
+					.toString();
+		} else if (isSearchingByCompanyCode(criteria)) {
+			return wherePortion += this.extractCompanyCodeCriterion(criteria);
+		} else {
+			// searching by names
+			if (criteria.getStatusCode() != null) {
+				if (!criteria.getStatusCode().equals("0")) { // not Select ALL
+					wherePortion += " and ste.EXTERNAL_STATUS_CODE = "
+							+ criteria.getStatusCode();
+				}
 			}
-		}
 
-		if (criteria.getCompanyName() != null
-				&& criteria.getCompanyName().length() > 0) {
-			// replace space with wildcard to be able to search for multiple
-			// words
-			String strCompanyName = criteria.getCompanyName().replace(" ", "%");
-			// wherePortion += (" AND UPPER(co.COMPANY_NAME) LIKE '%" +
-			// strCompanyName.trim().toUpperCase() + "%'");
-			wherePortion += " and drug.DRUG_CODE in (select drug_code from wqry_drug_product where company_code "
+			if (criteria.getCompanyName() != null
+					&& criteria.getCompanyName().length() > 0) {
+				// replace space with wildcard to be able to search for multiple
+				// words
+				String strCompanyName = criteria.getCompanyName().replace(" ",
+						"%");
+				// wherePortion += (" AND UPPER(co.COMPANY_NAME) LIKE '%" +
+				// strCompanyName.trim().toUpperCase() + "%'");
+				wherePortion += " and drug.DRUG_CODE in (select drug_code from wqry_drug_product where company_code "
 						+ "in (select company_code from WQRY_COMPANIES co "
-							+ " where translate(upper(co.COMPANY_NAME),'ÀÂÄÇÈÉËÊÌÎÏÒÔÖÙÚÛÜ','AAACEEEEIIIOOOUUUU') like '%"
-					+ StringsUtil.AsUnAccentedUppercase(strCompanyName.trim())
-					+ "%'))";
+						+ " where translate(upper(co.COMPANY_NAME),'ÀÂÄÇÈÉËÊÌÎÏÒÔÖÙÚÛÜ','AAACEEEEIIIOOOUUUU') like '%"
+						+ StringsUtil.AsUnAccentedUppercase(strCompanyName
+								.trim()) + "%'))";
 
-		}
+			}
 
-		if (criteria.getAigNumber() != null
-				&& criteria.getAigNumber().length() > 0) {
-			wherePortion += " AND drug.AI_GROUP_NO = '"
-					+ criteria.getAigNumber() + "'";
-		}
+			if (criteria.getAigNumber() != null
+					&& criteria.getAigNumber().length() > 0) {
+				wherePortion += " AND drug.AI_GROUP_NO = '"
+						+ criteria.getAigNumber() + "'";
+			}
 
-		if (criteria.getBrandName() != null
-				&& criteria.getBrandName().length() > 0) {
-			// replace space with wildcard to be able to search for multiple
-			// words
-			String strBrandName = criteria.getBrandName().replace(" ", "%");
-			// SL/2013-02-05 ADR0106 - search on both English and French brands,
-			// accent- and case-insensitive
-			// wherePortion += " AND ((Upper(BRAND_NAME) like '%" +
-			// strBrandName.trim().toUpperCase() + "%')"
-			// + " or (upper(BRAND_NAME_F) like '%" +
-			// strBrandName.trim().toUpperCase() + "%'))";
-			wherePortion += " and ((translate(upper(BRAND_NAME),'ÀÂÄÇÈÉËÊÌÎÏÒÔÖÙÚÛÜ','AAACEEEEIIIOOOUUUU') like '%"
-					+ StringsUtil.AsUnAccentedUppercase(strBrandName.trim())
-					+ "%')"
-					+ " or (translate(upper(BRAND_NAME_F),'ÀÂÄÇÈÉËÊÌÎÏÒÔÖÙÚÛÜ','AAACEEEEIIIOOOUUUU') like '%"
-					+ StringsUtil.AsUnAccentedUppercase(strBrandName.trim())
-					+ "%'))";
-		}
+			if (criteria.getBrandName() != null
+					&& criteria.getBrandName().length() > 0) {
+				// replace space with wildcard to be able to search for multiple
+				// words
+				String strBrandName = criteria.getBrandName().replace(" ", "%");
+				// SL/2013-02-05 ADR0106 - search on both English and French
+				// brands,
+				// accent- and case-insensitive
+				wherePortion += " and ((translate(upper(BRAND_NAME),'ÀÂÄÇÈÉËÊÌÎÏÒÔÖÙÚÛÜ','AAACEEEEIIIOOOUUUU') like '%"
+						+ StringsUtil
+								.AsUnAccentedUppercase(strBrandName.trim())
+						+ "%')"
+						+ " or (translate(upper(BRAND_NAME_F),'ÀÂÄÇÈÉËÊÌÎÏÒÔÖÙÚÛÜ','AAACEEEEIIIOOOUUUU') like '%"
+						+ StringsUtil
+								.AsUnAccentedUppercase(strBrandName.trim())
+						+ "%'))";
+			}
 
-		if (criteria.getActiveIngredient() != null
-				&& criteria.getActiveIngredient().length() > 0) {
-			String strActiveIngredient = criteria.getActiveIngredient().trim()
-					.toUpperCase();
+			if (criteria.getActiveIngredient() != null
+					&& criteria.getActiveIngredient().length() > 0) {
+				String strActiveIngredient = criteria.getActiveIngredient()
+						.trim().toUpperCase();
 
-			int andPosition = -1;
-			int orPosition = -1;
+				int andPosition = -1;
+				int orPosition = -1;
 
-			String ingredient = "";
+				String ingredient = "";
 
-			// break up on the AND first
-			// SL/2013-02-18 Bug fix: was treating the beginning of 'original'
-			// as an operator
-			andPosition = strActiveIngredient.indexOf(" AND ");
-			orPosition = strActiveIngredient.indexOf(" OR ");
+				// break up on the AND first
+				// SL/2013-02-18 Bug fix: was treating the beginning of
+				// 'original'
+				// as an operator
+				andPosition = strActiveIngredient.indexOf(" AND ");
+				orPosition = strActiveIngredient.indexOf(" OR ");
 
-			wherePortion += " AND drug.drug_code IN (select DISTINCT drug_code from wqry_active_ingredients "
-					// + " WHERE upper(" +
-					// localizedSearchColumnFor(INGREDIENT_COLUMN) +
-					// ") LIKE '%";
-					+ " WHERE translate(upper("
-					+ localizedSearchColumnFor(INGREDIENT_COLUMN)
-					+ "),'ÀÂÄÇÈÉËÊÌÎÏÒÔÖÙÚÛÜ','AAACEEEEIIIOOOUUUU') like '%";
-
-			if (andPosition != -1) {
-				// there is an "AND" found in the string
-				int pos = -1;
-
-				Boolean andFound = false;
-
-				while (andPosition > 0) {
-					// Is the next operator an "AND" or an "OR"?
-
-					if (orPosition == -1) {
-						pos = andPosition;
-						andFound = true;
-					} else if (andPosition < orPosition && andPosition != -1) {
-						pos = andPosition;
-						andFound = true;
-					} else {
-						pos = orPosition;
-						andFound = false;
-					}
-
-					ingredient = strActiveIngredient.substring(0, pos);
-
-					// wherePortion += ingredient + "%'";
-					wherePortion += StringsUtil
-							.AsUnAccentedUppercase(ingredient)
-							+ "%'";
-
-					if (andFound) {
-						wherePortion += ")";
-						wherePortion += " AND drug.drug_code IN (select DISTINCT drug_code from wqry_active_ingredients WHERE "
-								// + "upper(" +
-								// localizedSearchColumnFor(INGREDIENT_COLUMN) +
-								// ") LIKE '%";
-								+ "translate(upper("
-								+ localizedSearchColumnFor(INGREDIENT_COLUMN)
-								+ "),'ÀÂÄÇÈÉËÊÌÎÏÒÔÖÙÚÛÜ','AAACEEEEIIIOOOUUUU') like '%";
-
-						strActiveIngredient = strActiveIngredient
-								.substring(pos + 5);
-					} else {
-						// wherePortion += " OR upper(" +
+				wherePortion += " AND drug.drug_code IN (select DISTINCT drug_code from wqry_active_ingredients "
+						// + " WHERE upper(" +
 						// localizedSearchColumnFor(INGREDIENT_COLUMN) +
 						// ") LIKE '%";
-						wherePortion += " OR translate(upper("
-								+ localizedSearchColumnFor(INGREDIENT_COLUMN)
-								+ "),'ÀÂÄÇÈÉËÊÌÎÏÒÔÖÙÚÛÜ','AAACEEEEIIIOOOUUUU') like '%";
+						+ " WHERE translate(upper("
+						+ localizedSearchColumnFor(INGREDIENT_COLUMN)
+						+ "),'ÀÂÄÇÈÉËÊÌÎÏÒÔÖÙÚÛÜ','AAACEEEEIIIOOOUUUU') like '%";
+
+				if (andPosition != -1) {
+					// there is an "AND" found in the string
+					int pos = -1;
+
+					Boolean andFound = false;
+
+					while (andPosition > 0) {
+						// Is the next operator an "AND" or an "OR"?
+
+						if (orPosition == -1) {
+							pos = andPosition;
+							andFound = true;
+						} else if (andPosition < orPosition
+								&& andPosition != -1) {
+							pos = andPosition;
+							andFound = true;
+						} else {
+							pos = orPosition;
+							andFound = false;
+						}
+
+						ingredient = strActiveIngredient.substring(0, pos);
+
+						// wherePortion += ingredient + "%'";
+						wherePortion += StringsUtil
+								.AsUnAccentedUppercase(ingredient) + "%'";
+
+						if (andFound) {
+							wherePortion += ")";
+							wherePortion += " AND drug.drug_code IN (select DISTINCT drug_code from wqry_active_ingredients WHERE "
+									// + "upper(" +
+									// localizedSearchColumnFor(INGREDIENT_COLUMN)
+									// +
+									// ") LIKE '%";
+									+ "translate(upper("
+									+ localizedSearchColumnFor(INGREDIENT_COLUMN)
+									+ "),'ÀÂÄÇÈÉËÊÌÎÏÒÔÖÙÚÛÜ','AAACEEEEIIIOOOUUUU') like '%";
+
+							strActiveIngredient = strActiveIngredient
+									.substring(pos + 5);
+						} else {
+							// wherePortion += " OR upper(" +
+							// localizedSearchColumnFor(INGREDIENT_COLUMN) +
+							// ") LIKE '%";
+							wherePortion += " OR translate(upper("
+									+ localizedSearchColumnFor(INGREDIENT_COLUMN)
+									+ "),'ÀÂÄÇÈÉËÊÌÎÏÒÔÖÙÚÛÜ','AAACEEEEIIIOOOUUUU') like '%";
+
+							strActiveIngredient = strActiveIngredient
+									.substring(pos + 4);
+						}
+						//
+						orPosition = strActiveIngredient.indexOf(" OR ");
+						andPosition = strActiveIngredient.indexOf(" AND ");
+					}
+				}
+
+				// no "AND" found - just extract the "OR"
+				String orPortion = "";
+
+				orPosition = strActiveIngredient.indexOf(" OR ");
+
+				if (orPosition != -1) {
+					while (orPosition > 0) {
+						ingredient = strActiveIngredient.substring(0,
+								orPosition);
+
+						// orPortion += ingredient + "%'";
+						orPortion += StringsUtil
+								.AsUnAccentedUppercase(ingredient) + "%'";
 
 						strActiveIngredient = strActiveIngredient
-								.substring(pos + 4);
+								.substring(orPosition + 4);
+						orPosition = strActiveIngredient.indexOf(" OR ");
+
+						// orPortion += " OR upper(" +
+						// localizedSearchColumnFor(INGREDIENT_COLUMN) +
+						// ") LIKE '%";
+						orPortion += " OR translate(upper("
+								+ localizedSearchColumnFor(INGREDIENT_COLUMN)
+								+ "),'ÀÂÄÇÈÉËÊÌÎÏÒÔÖÙÚÛÜ','AAACEEEEIIIOOOUUUU') like '%";
 					}
-					//					
-					orPosition = strActiveIngredient.indexOf(" OR ");
-					andPosition = strActiveIngredient.indexOf(" AND ");
 				}
+
+				// orPortion += strActiveIngredient + "%'";
+				orPortion += StringsUtil
+						.AsUnAccentedUppercase(strActiveIngredient) + "%'";
+
+				wherePortion += orPortion + ")";
 			}
 
-			// no "AND" found - just extract the "OR"
-			String orPortion = "";
-
-			orPosition = strActiveIngredient.indexOf(" OR ");
-
-			if (orPosition != -1) {
-				while (orPosition > 0) {
-					ingredient = strActiveIngredient.substring(0, orPosition);
-
-					// orPortion += ingredient + "%'";
-					orPortion += StringsUtil.AsUnAccentedUppercase(ingredient)
-							+ "%'";
-
-					strActiveIngredient = strActiveIngredient
-							.substring(orPosition + 4);
-					orPosition = strActiveIngredient.indexOf(" OR ");
-
-					// orPortion += " OR upper(" +
-					// localizedSearchColumnFor(INGREDIENT_COLUMN) +
-					// ") LIKE '%";
-					orPortion += " OR translate(upper("
-							+ localizedSearchColumnFor(INGREDIENT_COLUMN)
-							+ "),'ÀÂÄÇÈÉËÊÌÎÏÒÔÖÙÚÛÜ','AAACEEEEIIIOOOUUUU') like '%";
-				}
+			if (criteria.getRoute() != null && criteria.getRoute().length > 0) {
+				// Updated to include multiple user-selected routes and
+				// refactored
+				// SL/2009-09-09
+				// Updated to include drug class SL/2014-10-17
+				wherePortion = includeSelectedCriteriaItems(
+						criteria.getRoute(), wherePortion, ROUTE_CRITERIA);
 			}
 
-			// orPortion += strActiveIngredient + "%'";
-			orPortion += StringsUtil.AsUnAccentedUppercase(strActiveIngredient)
-					+ "%'";
+			if (criteria.getDosage() != null && criteria.getDosage().length > 0) {
+				wherePortion = includeSelectedCriteriaItems(
+						criteria.getDosage(), wherePortion,
+						DOSAGE_FORM_CRITERIA);
+			}
 
-			wherePortion += orPortion + ")";
-		}
+			if (criteria.getSchedule() != null
+					&& criteria.getSchedule().length > 0) {
+				wherePortion = includeSelectedCriteriaItems(
+						criteria.getSchedule(), wherePortion, SCHEDULE_CRITERIA);
+			}
 
-		if (criteria.getRoute() != null && criteria.getRoute().length > 0) {
-			// Updated to include multiple user-selected routes and refactored
-			// SL/2009-09-09
-			// Updated to include drug class SL/2014-10-17
-			wherePortion = includeSelectedCriteriaItems(criteria.getRoute(),
-					wherePortion, ROUTE_CRITERIA);
-		}
+			if (criteria.getDrugClass() != null
+					&& criteria.getDrugClass().length > 0) {
+				wherePortion = includeSelectedCriteriaItems(
+						criteria.getDrugClass(), wherePortion,
+						DRUG_CLASS_CRITERIA);
 
-		if (criteria.getDosage() != null && criteria.getDosage().length > 0) {
-			wherePortion = includeSelectedCriteriaItems(criteria.getDosage(),
-					wherePortion, DOSAGE_FORM_CRITERIA);
-		}
-
-		if (criteria.getSchedule() != null && criteria.getSchedule().length > 0) {
-			wherePortion = includeSelectedCriteriaItems(criteria.getSchedule(),
-					wherePortion, SCHEDULE_CRITERIA);
-		}
-
-		if (criteria.getDrugClass() != null
-				&& criteria.getDrugClass().length > 0) {
-			wherePortion = includeSelectedCriteriaItems(
-					criteria.getDrugClass(), wherePortion, DRUG_CLASS_CRITERIA);
-
+			}
 		}
 		return wherePortion;
+	}
+
+	private String extractCompanyCodeCriterion(SearchCriteriaBean criteria) {
+		return " and drug.COMPANY_CODE = "
+				+ criteria.getCompanyCode().longValue();
+	}
+
+	private boolean isSearchingByCompanyCode(SearchCriteriaBean criteria) {
+		// TODO Auto-generated method stub
+		return (criteria.getCompanyCode() != null
+				&& criteria.getCompanyCode().longValue() > 0) ;
+	}
+
+	private boolean isSearchingByATC(SearchCriteriaBean criteria) {
+		return (criteria.getAtc() != null && criteria.getAtc().length() > 0);
+	}
+
+	private boolean isSearchingByDin(SearchCriteriaBean criteria) {
+		return (criteria.getDin() != null && criteria.getDin().length() > 0);
 	}
 
 	private String includeSelectedCriteriaItems(String[] items,
