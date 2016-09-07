@@ -24,6 +24,7 @@ import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
 import org.apache.struts.action.DynaActionForm;
 
+import ca.gc.hc.bean.AjaxBean;
 import ca.gc.hc.bean.DrugBean;
 import ca.gc.hc.bean.DrugSummaryBean;
 import ca.gc.hc.bean.SearchCriteriaBean;
@@ -71,31 +72,53 @@ public final class ShortcutSearchAction extends Action {
 	public ActionForward execute(ActionMapping mapping, ActionForm form,
 			HttpServletRequest request, HttpServletResponse response)
 			throws java.io.IOException, javax.servlet.ServletException {
-		
+
+		/*
+		 * !! IMPORTANT !! : On the Tomcat server in the HRE environment, when a
+		 * search returns too many results, it takes too long for the DataTable
+		 * to load all results and while this is happening, (many seconds) users
+		 * cannot interact with it.
+		 * 
+		 * When the number of results exceeds the limit set in
+		 * ApplicationResources, only the first 25 results will be returned
+		 * initially and the DataTable will request more results as required,
+		 * somewhat similar to the pre-WET4 implementation (no DataTable) where
+		 * the data was always paged to 25 results per page.
+		 * 
+		 * The AjaxBean is used to capture the DataTable's request parameters.
+		 * See also method processAjaxRequest() herein.
+		 * 
+		 * See http://legacy.datatables.net/usage/server-side (until version 10
+		 * or later of DataTables starts being used)
+		 */
+		AjaxBean ajaxBean = null;
 		DynaActionForm thisForm = (DynaActionForm) form;
-
 		SearchCriteriaBean criteria = new SearchCriteriaBean();
-
 		ActionMessages messages = new ActionMessages();
 
 		HttpSession session = request.getSession();
 		ActionForward forward = new ActionForward();
 		if (session.getAttribute("sessionActive") != null) {
-			strLanguage = request.getParameter("lang");	
-			if ("en".equals(strLanguage)) 
-			{
-				session.setAttribute("org.apache.struts.action.LOCALE",new java.util.Locale("en","CA"));
-				request.getSession().setAttribute(Globals.LOCALE_KEY, new Locale("en", "CA"));
-			}
-			else if ("fr".equals(strLanguage)) 
-			{
-				session.setAttribute("org.apache.struts.action.LOCALE",new java.util.Locale("fr","CA"));
-				request.getSession().setAttribute(Globals.LOCALE_KEY, Locale.CANADA_FRENCH);
+			strLanguage = request.getParameter("lang");
+			if ("en".equals(strLanguage)) {
+				session.setAttribute("org.apache.struts.action.LOCALE",
+						new java.util.Locale("en", "CA"));
+				request.getSession().setAttribute(Globals.LOCALE_KEY,
+						new Locale("en", "CA"));
+			} else if ("fr".equals(strLanguage)) {
+				session.setAttribute("org.apache.struts.action.LOCALE",
+						new java.util.Locale("fr", "CA"));
+				request.getSession().setAttribute(Globals.LOCALE_KEY,
+						Locale.CANADA_FRENCH);
 			}
 
 			session.removeAttribute(ApplicationGlobals.USER_SEARCH_CRITERIA);
 			session.removeAttribute(ApplicationGlobals.QUERY_SEARCH_CRITERIA);
 			session.removeAttribute(ApplicationGlobals.SEARCH_RESULT_KEY);
+			
+			boolean isSearchingByCompany = false;
+			List list = new ArrayList();
+
 			try {
 				if (thisForm.get("no") != null
 						&& ((String) thisForm.get("no")).length() > 0) {
@@ -105,75 +128,122 @@ public final class ShortcutSearchAction extends Action {
 				if (thisForm.get("code") != null
 						&& ((String) thisForm.get("code")).length() > 0) {
 
-					//criteria.setCompanyCode(new Long(sc.decrypt((String) thisForm.get("code"))));
-					criteria.setCompanyCode(new Long((String) thisForm.get("code")));
+					// criteria.setCompanyCode(new Long(sc.decrypt((String)
+					// thisForm.get("code"))));
+					criteria.setCompanyCode(new Long((String) thisForm
+							.get("code")));
 					criteria.setAigNumber(null);
-					
+					isSearchingByCompany = true;
 				}
-				// new
-				if ((criteria.getAigNumber() != null)
-						|| (criteria.getCompanyCode() != null)) {
-//					Long lngStatus = (Long) session
-//							.getAttribute(ApplicationGlobals.SELECTED_STATUS);
-//					if (lngStatus.longValue() > 0) {
-//						criteria.setStatusCode(Long
-//								.valueOf(ApplicationGlobals.ACTIVE));
-//					} else {
-//						criteria.setStatusCode(Long
-//								.valueOf(ApplicationGlobals.DISCONTINUE));
-//					}
-							
-				}
-				/*SL/2012-09-07: If the main search was for a DIN, criteria.getStatusCode() will be null*/
-					if(session.getAttribute(ApplicationGlobals.SELECTED_STATUS)
-							.equals(ApplicationGlobals.ACTIVE_DRUG_STATUS_ID)) {
-						criteria.setStatusCode(ApplicationGlobals.SELECTED_STATUS);
-					}else {
-					}
-				//}
-					
-					
-
-
-				SearchDrugDao search = new SearchDrugDao();
-				List list = new ArrayList();
 				
-				list = search.SearchByCriteria(criteria, request);
+				criteria.setStatusCode("0");
+//					String statusCode = (String) session
+//							.getAttribute(ApplicationGlobals.SELECTED_STATUS);
+//					if (statusCode != null) {
+//						criteria.setStatusCode(statusCode);
+//					}
 
-				// SL/2009-09-18: this raises a null pointer exception
-//				log.debug("Search Criteria:" + criteria.toString());
 
-				if (list.size() > 0) {
-					// log.debug("Total match found: [" + list.size() + "].");
-					if (list.size() == 1)  {
-						/* SL/2012-08-10 Bug fix: the code was not anticipating that a single product
-						 * could be returned when searching for all products by a company
-						 */
-						if (criteria.getAigNumber() != null) {
-							// if only one record is returned by an AIG search it is because it's the
-							// original product: the request attribute will trigger a message to that effect
-							// found!"
-							request.setAttribute("similarAIG", "Y");
-						}else { 
-							//it is the company that has no other product
-							request.setAttribute("similarProduct", "Y");
-						}
-					} else { // more than one result returned
-						session.setAttribute(
-								ApplicationGlobals.SEARCH_RESULT_KEY, list);
+				/*
+				 * See if we are in server-processing mode. Parameter sEcho is
+				 * always generated by the DataTable when it is in
+				 * server-processing mode, and its value is incremented with
+				 * each request.
+				 * 
+				 * See http://legacy.datatables.net/usage/server-side (until
+				 * version 10 or later of DataTables starts being used)
+				 */
+				String echo = request.getParameter("sEcho");
+				boolean isDataTableServerSideProcessing = echo != null
+						&& !echo.equals("0");
+
+				if (isDataTableServerSideProcessing) {
+					ajaxBean = (AjaxBean) session
+							.getAttribute(ApplicationGlobals.AJAX_BEAN);
+					criteria = (SearchCriteriaBean) session
+							.getAttribute(ApplicationGlobals.QUERY_SEARCH_CRITERIA);
+					ActionUtil.processAjaxRequest(ajaxBean, request, criteria,
+							response, messages);
+					session.setAttribute(ApplicationGlobals.AJAX_BEAN, ajaxBean);
+
+				} else {
+					if (isSearchingByCompany) {
+						// Not an Ajax request: process for normal JSP
+						SearchDrugDao dao = new SearchDrugDao();
+						int resultsSize = dao.getQueryResultsCount(criteria);
+						request.getSession().setAttribute(
+								ApplicationGlobals.RESULT_COUNT_KEY, resultsSize);
 	
-						if (criteria.getCompanyCode() != null) {
-							criteria.setCompanyName(extractCompanyName(list, messages));
+						// Paginate if the result size is greater than the value set
+						// for DataTable server processing
+						int serverSideThreshold = ApplicationGlobals.instance()
+								.getDataTableServerProcessingThreshold();
+	
+						if (resultsSize > 0 && resultsSize >= serverSideThreshold) {
+							ActionUtil.setupForServerProcessing(request, 
+									dao);
+							// Only get the first page of results
+							list = dao.getNextResults(criteria, request);
+	
+						} else if (resultsSize > 0
+								&& resultsSize < serverSideThreshold) {
+							// re-query for actual results
+							list = new SearchDrugDao().SearchByCriteria(criteria, request);
 						}
+					} else {
+						//searching by AIG
+						list = new SearchDrugDao().SearchByCriteria(criteria, request);
 					}
 
-					session.setAttribute(ApplicationGlobals.USER_SEARCH_CRITERIA,
+					request.getSession().setAttribute(
+							ApplicationGlobals.RESULT_COUNT_KEY,
+							list.size());
+					session.setAttribute(
+							ApplicationGlobals.SEARCH_RESULT_KEY, list);
+
+					if (list.size() > 0) {
+						if (list.size() == 1) {
+							/*
+							 * SL/2012-08-10 Bug fix: the code was not
+							 * anticipating that a single product could be
+							 * returned when searching for all products by a
+							 * company
+							 */
+							if (criteria.getAigNumber() != null) {
+								/*
+								 * if only one record is returned by an AIG
+								 * search it is because it's the original
+								 * product: the request attribute will trigger a
+								 * message to that effect!"
+								 */
+								request.setAttribute("similarAIG", "Y");
+							} else {
+								// it is the company that has no other product
+								request.setAttribute("similarProduct", "Y");
+							}
+						} else { // more than one result returned
+
+							if (criteria.getCompanyCode() != null) {
+								criteria.setCompanyName(extractCompanyName(
+										list, messages));
+							}
+						}
+
+						session.setAttribute(
+								ApplicationGlobals.USER_SEARCH_CRITERIA,
 								criteria);
-				}else { // no other product from this company
-					messages.add(ActionMessages.GLOBAL_MESSAGE,
-							new ActionMessage("message.no.similar_company_product"));
+
+						session.setAttribute(
+								ApplicationGlobals.QUERY_SEARCH_CRITERIA,
+								criteria);
+					} else { // no other product from this company
+						messages.add(ActionMessages.GLOBAL_MESSAGE,
+								new ActionMessage(
+										"message.no.similar_company_product"));
+					}
 				}
 			} catch (Exception e) {
+				log.error(e.getMessage());
 				messages.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(
 						"error.failure.system"));
 				// //PRODUCT LABEL - TO PUT BACK LATER
@@ -190,10 +260,9 @@ public final class ShortcutSearchAction extends Action {
 			}
 
 			messages = null;
-			if (session.getAttribute(ApplicationGlobals.SEARCH_RESULT_KEY) != null) {
+			if (list.size() > 1) {
 				forward = (mapping.findForward("multiplematch"));
-			} else if (session
-					.getAttribute(ApplicationGlobals.SELECTED_PRODUCT) != null) {
+			} else if (list.size() == 1) {
 				forward = (mapping.findForward("onematch"));
 			} else {
 				messages.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(
