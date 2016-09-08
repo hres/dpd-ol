@@ -31,7 +31,6 @@ import ca.gc.hc.bean.SearchCriteriaBean;
 import ca.gc.hc.controller.util.ActionUtil;
 import ca.gc.hc.dao.SearchDrugDao;
 import ca.gc.hc.util.ApplicationGlobals;
-import ca.gc.hc.view.PagerForm;
 
 /**
  * Description : This action classes is responsible for the logic behind the
