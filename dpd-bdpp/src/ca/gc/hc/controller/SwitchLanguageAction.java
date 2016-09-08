@@ -66,7 +66,11 @@ public class SwitchLanguageAction extends Action {
 		 * in the gui.
 		 */
         SearchCriteriaBean crit = (SearchCriteriaBean) session.getAttribute(ApplicationGlobals.USER_SEARCH_CRITERIA);
-		ActionUtil.mapDrugClassNames(crit.getDrugClass(), session);
+		if (crit != null) {
+			if (crit.getDrugClass() != null) {
+				ActionUtil.mapDrugClassNames(crit.getDrugClass(), session);
+			}
+		}
      
 	     String strStaticFallBackFilePath = goctemplateclientbean.getStaticFallbackFilePath();
 	     String strRefTopStaticFile = applicationscopebean.getStaticFile(strStaticFallBackFilePath, "gcweb", "refTop.html");
