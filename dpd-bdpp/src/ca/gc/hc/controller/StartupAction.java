@@ -11,7 +11,6 @@ import goc.webtemplate.component.jsp.MasterApplicationBean;
 import goc.webtemplate.jsp.beans.ApplicationBaseSettingsBean;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Locale;
 
 import javax.servlet.ServletException;
