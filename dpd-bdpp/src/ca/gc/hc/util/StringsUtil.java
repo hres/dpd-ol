@@ -12,8 +12,6 @@ import java.util.StringTokenizer;
 
 import org.apache.log4j.Logger;
 
-import ca.gc.hc.controller.DisplayItemAction;
-
 
 /**
 	Extensions to {@link java.lang.String}.

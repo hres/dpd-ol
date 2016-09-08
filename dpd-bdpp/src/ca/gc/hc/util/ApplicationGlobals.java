@@ -13,12 +13,9 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.struts.Globals;
 import org.apache.struts.util.LabelValueBean;
-import org.hibernate.HibernateException;
 
-import ca.gc.hc.bean.AjaxBean;
 import ca.gc.hc.dao.SearchDrugDao;
 import ca.gc.hc.model.DrugClass;
-import ca.gc.hc.model.DrugStatus;
 import ca.gc.hc.model.ExternalStatus;
 
 /*******************************************************************************

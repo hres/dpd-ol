@@ -1,21 +1,13 @@
 package ca.gc.hc.util;
 
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import ca.gc.hc.bean.AjaxBean;
 import ca.gc.hc.bean.DrugSummaryBean;
 import ca.gc.hc.bean.JsonSummaryBean;
-import ca.gc.hc.bean.SearchCriteriaBean;
-import ca.gc.hc.controller.SearchAction;
 
-import com.google.gson.*;
+import com.google.gson.Gson;
 
 /**
  * @author S. Larivière 2016-08-11
