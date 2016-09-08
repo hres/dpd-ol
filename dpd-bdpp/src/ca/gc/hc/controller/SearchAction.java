@@ -6,13 +6,9 @@
 package ca.gc.hc.controller;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -31,13 +27,10 @@ import org.apache.struts.action.ActionMessages;
 import ca.gc.hc.bean.AjaxBean;
 import ca.gc.hc.bean.AjaxBean.AjaxRequestStatus;
 import ca.gc.hc.bean.DrugBean;
-import ca.gc.hc.bean.DrugSummaryBean;
 import ca.gc.hc.bean.SearchCriteriaBean;
 import ca.gc.hc.controller.util.ActionUtil;
 import ca.gc.hc.dao.SearchDrugDao;
 import ca.gc.hc.util.ApplicationGlobals;
-import ca.gc.hc.util.DataTableColumn;
-import ca.gc.hc.util.JsonBuilder;
 import ca.gc.hc.util.StringsUtil;
 import ca.gc.hc.view.SearchForm;
 
@@ -200,6 +193,9 @@ public final class SearchAction extends Action {
 								ApplicationGlobals.SELECTED_PRODUCT,
 								ActionUtil.postProcessDrugBean(bean, request));
 
+					} else if (list.size() > 1) {
+						session.setAttribute(
+								ApplicationGlobals.SEARCH_RESULT_KEY, list);
 					}
 
 				}
@@ -220,12 +216,12 @@ public final class SearchAction extends Action {
 			if (ajaxBean != null
 					&& AjaxRequestStatus.ACTIVE == ajaxBean.getAjaxStatus()) {
 				forward = null;
-			} else if (session
-					.getAttribute(ApplicationGlobals.SEARCH_RESULT_KEY) != null) {
-				forward = (mapping.findForward("multiplematch"));
-			} else if (session
-					.getAttribute(ApplicationGlobals.SELECTED_PRODUCT) != null) {
-				forward = (mapping.findForward("onematch"));
+			} else if (list.size() > 1) { 
+				request.getSession().setAttribute(
+						ApplicationGlobals.SEARCH_RESULT_KEY, list);				
+					forward = (mapping.findForward("multiplematch"));
+			} else if (list.size() == 1) {
+					forward = (mapping.findForward("onematch"));
 			} else {
 				messages.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(
 						"error.failure.system"));
@@ -307,11 +303,7 @@ public final class SearchAction extends Action {
 			resultsList = new SearchDrugDao().SearchByCriteria(safeCrit, request);
 			request.getSession().setAttribute(
 			ApplicationGlobals.RESULT_COUNT_KEY, resultsList.size());
-		} 
-
-		request.getSession().setAttribute(
-				ApplicationGlobals.SEARCH_RESULT_KEY, resultsList);
-		
+		}
 		return resultsList;
 	}
 	
