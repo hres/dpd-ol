@@ -1,9 +1,9 @@
 package ca.gc.hc.bean;
 
-import ca.gc.hc.controller.DisplayItemAction;
+import org.apache.log4j.Logger;
+
 import ca.gc.hc.util.ApplicationGlobals;
 import ca.gc.hc.util.LocaleDependantObject;
-import org.apache.log4j.Logger;
 
 /**
  * Provides an ISO language code for use in an xhtml or html lang attribute where the related data is
