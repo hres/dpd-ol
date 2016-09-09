@@ -24,16 +24,18 @@
 </p>
 <p><strong><bean:message key="label.product.schedule"/></strong>
   &nbsp;
-   <logic:present name="dpd.selected.product" property="scheduleList" scope="session">
+   <logic:notEmpty name="dpd.selected.product" property="scheduleList" scope="session">
    		<logic:iterate id="element" name="dpd.selected.product" property="scheduleList" indexId="index">
-			<bean:define id="scheduleLangOfPart" name="dpd.selected.product" property='<%= "scheduleLangOfPart[" + index + "]" %>'></bean:define>
-			<logic:notEmpty name="dpd.selected.product" property='<%= "scheduleLangOfPart[" + index + "]" %>'>
-				<span xml:lang='<%= scheduleLangOfPart %>' lang='<%= scheduleLangOfPart %>'><bean:write name="element" property="schedule"/></span><logic:greaterThan name="dpd.selected.product" property="scheduleSpeciesCount" value='<%= new Integer(index + 1).toString() %>'>,&nbsp;</logic:greaterThan>
+   			<logic:notEmpty name= "element">
+				<bean:define id="scheduleLangOfPart" name="dpd.selected.product" property='<%= "scheduleLangOfPart[" + index + "]" %>'></bean:define>
+				<logic:notEmpty name="dpd.selected.product" property='<%= "scheduleLangOfPart[" + index + "]" %>'>
+					<span xml:lang='<%= scheduleLangOfPart %>' lang='<%= scheduleLangOfPart %>'><bean:write name="element" property="schedule"/></span><logic:greaterThan name="dpd.selected.product" property="scheduleSpeciesCount" value='<%= new Integer(index + 1).toString() %>'>,&nbsp;</logic:greaterThan>
 			</logic:notEmpty>
 			<logic:empty name="scheduleLangOfPart"><bean:write name="element" property="schedule"/><logic:greaterThan name="dpd.selected.product" property="scheduleSpeciesCount" value='<%= new Integer(index + 1).toString() %>'>,&nbsp;</logic:greaterThan></logic:empty>
+			</logic:notEmpty>
 		</logic:iterate>
-   </logic:present>
-   <logic:notPresent name="dpd.selected.product" property="scheduleList" scope="session">
+   </logic:notEmpty>
+   <logic:notPresent name="dpd.selected.product" property="schedule" scope="session">
     	<bean:message bundle="messageRes" key="message.not.provided"/>
    </logic:notPresent>
  </p>
