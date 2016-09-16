@@ -11,6 +11,11 @@ import com.google.gson.Gson;
 
 /**
  * @author S. Larivière 2016-08-11
+ *         <p>
+ *         Responsible for converting a standard DrugSummaryBean to JSON format
+ *         and generating the Ajax response to a DataTable that is operating in
+ *         server-side processing mode.
+ *         </p>
  * 
  */
 public class JsonBuilder extends LocaleDependantObject {
@@ -61,26 +66,28 @@ public class JsonBuilder extends LocaleDependantObject {
 	}
 
 	private String generateDinUrl(DrugSummaryBean jspBean) {
-		String drugCode =Long.toString(jspBean.getDrugCode());
+		String drugCode = Long.toString(jspBean.getDrugCode());
 		String lang = ApplicationGlobals.instance().getUserLanguage();
-		
+
 		// ex: <a href="/dpd-bdpp/info.do?code=81548&amp;lang=en">01234567</a>
-		StringBuilder sb = new StringBuilder("<a href=\"/dpd-bdpp/info.do?code=");
+		StringBuilder sb = new StringBuilder(
+				"<a href=\"/dpd-bdpp/info.do?code=");
 		sb.append(drugCode);
 		sb.append("&amp;lang=");
 		sb.append(ApplicationGlobals.instance().getUserLanguage());
 		sb.append("\">");
 		sb.append(jspBean.getDin());
 		sb.append("</a>");
-		
+
 		return sb.toString();
 	}
 
 	/**
 	 * @param jsonBean
 	 * @param validCount
-	 * @return True if jsonBean has a number of declared fields equal to validCount + 1
-	 * (to account for the additional, inherited userLocale field)
+	 * @return True if jsonBean has a number of declared fields equal to
+	 *         validCount + 1 (to account for the additional, inherited
+	 *         userLocale field)
 	 */
 	boolean hasValidColumnCount(JsonSummaryBean jsonBean, int validCount) {
 		return jsonBean.getClass().getDeclaredFields().length == validCount + 1;
@@ -96,23 +103,26 @@ public class JsonBuilder extends LocaleDependantObject {
 
 	public String generateDataTableJsonResponse(int resultsCount) {
 		StringBuilder buf = new StringBuilder("{");
-		
+
 		buf.append("\"sEcho\": ");
 		buf.append(ajaxBean.getEcho() + ",");
 		buf.append("\"iTotalRecords\": ");
 		buf.append(ajaxBean.getTotalCountBeforeFiltering() + ",");
 		buf.append("\"iTotalDisplayRecords\": ");
-		buf.append((ajaxBean.hasFilteredCount() ? ajaxBean.getTotalCountAfterFiltering() : ajaxBean.getTotalCountBeforeFiltering()) + "," );
+		buf.append((ajaxBean.hasFilteredCount() ? ajaxBean
+				.getTotalCountAfterFiltering() : ajaxBean
+				.getTotalCountBeforeFiltering())
+				+ ",");
 		buf.append("\"aaData\": ");
-			buf.append(jsonResults());
+		buf.append(jsonResults());
 		buf.append("}");
-		
+
 		return buf.toString();
 	}
 
 	private String jsonResults() {
 		Gson gson = new Gson();
-		
+
 		return gson.toJson(jsonBeansList);
 	}
 

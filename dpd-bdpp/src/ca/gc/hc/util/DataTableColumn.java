@@ -1,5 +1,11 @@
 package ca.gc.hc.util;
 
+/**
+ * @author Sylvain Larivière 2016-08-15 <p>Represents a column in the DataTable
+ *         plugin used in the Search Results page as part of the WET4
+ *         presentation changes.</p>
+ *
+ */
 public class DataTableColumn {
 	private int columnIndex = 0;
 	private String name = "";
