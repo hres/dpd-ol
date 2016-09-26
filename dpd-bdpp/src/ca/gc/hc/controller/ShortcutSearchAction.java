@@ -135,6 +135,10 @@ public final class ShortcutSearchAction extends Action {
 					isSearchingByCompany = true;
 				}
 				
+				log.debug("selected_status: " + (String) session
+							.getAttribute(ApplicationGlobals.SELECTED_STATUS));
+				
+				//Searching by company of AIG should not restrict status initially
 				criteria.setStatusCode("0");
 //					String statusCode = (String) session
 //							.getAttribute(ApplicationGlobals.SELECTED_STATUS);
