@@ -73,9 +73,14 @@
 		</logic:notEqual>
 	</logic:present>
 </logic:notEqual>
-
-<p><strong>
-	<bean:message key="label.product.current.status"/>&nbsp; 
+<div class="row">
+    <p class="col-sm-4"><strong>Adverse Reaction Report Number:</strong></p>
+    <div class="col-sm-8"><p id="ReportNo"></p></div>
+</div>
+<div class="row">
+    <p class="col-sm-4"><strong>
+	<bean:message key="label.product.current.status"/></strong></p>
+<p class="col-sm-8">	<strong>
 	<bean:define id="statusLangOfPart" name="dpd.selected.product" property="statusLangOfPart"></bean:define>
 	<logic:notEmpty name="statusLangOfPart">
 		<span class="strong" xml:lang='<%= statusLangOfPart %>' lang='<%= statusLangOfPart %>'><bean:write name="dpd.selected.product" property="statusVO.status"/></span>
@@ -84,23 +89,35 @@
 		<bean:write name="dpd.selected.product" property="statusVO.status"/>
 		</logic:empty>
 </strong></p>
+</div>
 <logic:equal name="dpd.selected.product" property="isRadioPharmaceutical" scope="session" value="false">
-<p>
-	<strong><bean:message key="label.product.current.date"/></strong>&nbsp;
+<div class="row">
+    <p class="col-sm-4">
+	<strong><bean:message key="label.product.current.date"/></strong>
+	<p class="col-sm-8">	
 		<bean:write name="dpd.selected.product" property="statusVO.historyDate" format="yyyy-MM-dd" scope="session"/>
 	<br/>
 	</p>
-	<logic:equal name="dpd.selected.product" property="isApproved" scope="session" value="false">
-	<p>
-	<strong><bean:message key="label.original.market.date"/></strong>
+	
+</div>
+<div class="row">
+<logic:equal name="dpd.selected.product" property="isApproved" scope="session" value="false">
+    <p class="col-sm-4">
+		<strong><bean:message key="label.original.market.date"/></strong>
+	</p>
+	<p class="col-sm-8">	
 		<sup id="fn1-rf"><a class="fn-lnk" href="#fn1"><span class="wb-inv"><bean:message key="label.results.see.footnote"/> </span>1</a></sup>
 	  	<bean:write name="dpd.selected.product" property="originalMarketDate" format="yyyy-MM-dd" scope="session"/>
 	 <br/>
 	</p>
 	</logic:equal>
 </logic:equal>
-<p>
+</div>
+<div class="row">
+	<p class="col-sm-4">	
 	 <strong><bean:message key="label.product.brand.name"/></strong>
+	</p>
+	<p class="col-sm-8">
 	 <bean:define id="brandLangOfPart" name="dpd.selected.product" property="brandNameLangOfPart"></bean:define>
 	 <logic:notEmpty name="brandLangOfPart">
 	 	<span xml:lang='<%= brandLangOfPart %>' lang='<%= brandLangOfPart %>'><bean:write name="dpd.selected.product" property="drugProduct.brandName"  scope="session"/></span>
@@ -108,10 +125,15 @@
 	 <logic:empty name="brandLangOfPart">
 	 	<bean:write name="dpd.selected.product" property="drugProduct.brandName"  scope="session"/>
 	 </logic:empty>
-</p>
-<p>
+	</p>
+</div>
+<div class="row">
+	
  <logic:notEmpty name="dpd.selected.product" property="drugProduct.descriptor">
+ 	<p class="col-sm-4">
  	<strong><bean:message key="label.product.description"/></strong>
+ 	</p>
+ 	<p class="col-sm-8">
 	 <bean:define id="descriptorLangOfPart" name="dpd.selected.product" property="descriptorLangOfPart"></bean:define>
  	 <logic:notEmpty name="descriptorLangOfPart">
 	 	<span xml:lang='<%= descriptorLangOfPart %>' lang='<%= descriptorLangOfPart %>'><bean:write name="dpd.selected.product" property="drugProduct.descriptor"  scope="session"/></span>
@@ -120,22 +142,27 @@
 	 	<bean:write name="dpd.selected.product" property="drugProduct.descriptor"  scope="session"/>
 	 </logic:empty>
 	<br/>
+	</p>
  </logic:notEmpty>
-</p>
+
+</div>
 <%-- if the drug class is not veterinary and the pm does not exist put a label saying the PM is not available --%>
 <logic:notEqual name="dpd.selected.product" property="drugProduct.drugClassE" scope="session" value="Veterinary">
 	<logic:present name="dpd.selected.product" property="pmVO" scope="session">
 	   	<logic:notEqual name="dpd.selected.product" property="pmVO.pmName" value="" scope="session">
-			<p>
+			
 			<span class="help-block">
 				<bean:message key="label.blurb.alternate.format"/>
 				<a href="<bean:message key='link.blurb.alternate.format'/>" >
 					<bean:message key="label.link.blurb.alternate.format"/>
 				</a>.
 				</span>
-			</p>
-			<p>	
+			
+			<div class="row">
+			<p class="col-sm-4">
 			<strong><bean:message key="label.product.din"/></strong>
+			</p>
+			<p class="col-sm-8">
 		 	<bean:write name="dpd.selected.product" property="drugProduct.drugIdentificationNumber"  scope="session"/>
 		  	
 		  
@@ -145,36 +172,50 @@
 			 	</html:link><br/>
 			 	</span>
 			 </p>
+			 </div>
 	 		</logic:notEqual>
 	
 		<logic:equal name="dpd.selected.product" property="pmVO.pmName" value="" scope="session">
-			<p>
+			<div class="row">
+			<p class="col-sm-4">
 			<strong><bean:message key="label.product.din"/></strong>
-			<bean:write name="dpd.selected.product" property="drugProduct.drugIdentificationNumber"  scope="session"/>
-		 	<div class="indent2 lightgreyBG">
-		 		<bean:message key="button.disabledPM"/>
+			</p>
+			<p class="col-sm-8">
+				<bean:write name="dpd.selected.product" property="drugProduct.drugIdentificationNumber"  scope="session"/>
+			 	<div class="indent2 lightgreyBG">
+		 			<bean:message key="button.disabledPM"/>
 		 		</div>
 		 	</p>
+		 	</div>
 		 	</logic:equal>
 		</logic:present>
 	</logic:notEqual>
 <logic:equal name="dpd.selected.product" property="drugProduct.drugClassE" scope="session" value="Veterinary" >
-	<p>
-	<strong><bean:message key="label.product.din"/></strong>
-	 <bean:write name="dpd.selected.product" property="drugProduct.drugIdentificationNumber"  scope="session"/>
-	 </p>
+	<div class="row">
+		<p class="col-sm-4">
+			<strong><bean:message key="label.product.din"/></strong>
+		</p>
+		<p class="col-sm-8">
+	 		<bean:write name="dpd.selected.product" property="drugProduct.drugIdentificationNumber"  scope="session"/>
+	 	</p>
+	 	</div>
 	</logic:equal>
 
 	<%-- if the drug class is not veterinary and the pm does not exist only put the din no message --%>
 	<logic:notEqual name="dpd.selected.product" property="drugProduct.drugClassE" scope="session" value="Veterinary">
 		<logic:notPresent name="dpd.selected.product" property="pmVO" scope="session">
-			<p>
-			<strong><bean:message key="label.product.din"/></strong>
-			 <bean:write name="dpd.selected.product" property="drugProduct.drugIdentificationNumber"  scope="session"/>
-			<span class="indent2 lightgreyBG">
+			<div class="row">
+				<p class="col-sm-4">
+					<strong><bean:message key="label.product.din"/></strong>
+					</p>
+				<p class="col-sm-8">
+			 		<bean:write name="dpd.selected.product" property="drugProduct.drugIdentificationNumber"  scope="session"/>
+			
+				<span class="indent2 lightgreyBG">
 		 		<bean:message key="button.disabledPM"/>
 		 		</span>
-		 	</p>
+		 		</p>
+		 		</div>
 			</logic:notPresent>
 		</logic:notEqual>
 <%-- Handling of labels is postponed until a later release: Martin Bernard 2010-03-10
@@ -201,10 +242,10 @@
 </p>
  --%>
 <div class="row">
-	<div class="col-sm-2">
+	<p class="col-sm-4">
 		<strong><bean:message key="label.product.company"/></strong>&nbsp;
-  	</div>
-  	<div class="col-sm-10">
+  	</p>
+  	<p class="col-sm-8">
 	  	<bean:define id="lang" >
 			<bean:message bundle="clfRes" key="label.app.lang" />
 		</bean:define>
@@ -272,10 +313,13 @@
 	   <logic:present name="dpd.selected.product" property="companyVO.postalCode" scope="session">
 	    &nbsp;<bean:write name="dpd.selected.product" property="companyVO.postalCode" scope="session"/>
 	   </logic:present>
-	</div>
+	</p>
 </div>
-<p>
+<div class="row">
+	<p class="col-sm-4">
 	<strong><bean:message key="label.product.class" />&nbsp;</strong>
+	</p>
+	<p class="col-sm-8">
 	 <bean:define id="classLangOfPart" name="dpd.selected.product" property="drugClassLangOfPart"></bean:define>
 	<logic:notEmpty name="classLangOfPart">
 	 	<span xml:lang='<%= classLangOfPart %>' lang='<%= classLangOfPart %>'><bean:write name="dpd.selected.product" property="drugProduct.drugClass" scope="session"/></span>
@@ -283,9 +327,14 @@
 	<logic:empty name="classLangOfPart">
 	 	<bean:write name="dpd.selected.product" property="drugProduct.drugClass" scope="session"/>
 	</logic:empty>
-</p>
+	</p>
+</div>
 <logic:equal name="dpd.selected.product" property="drugProduct.drugClassE" scope="session" value="Veterinary">
-	<strong><bean:message key="label.product.veterinarian.species"/></strong>&nbsp;	
+	<div class="row">
+		<p class="col-sm-4">
+	<strong><bean:message key="label.product.veterinarian.species"/></strong>
+		</p>
+		<p class="col-sm-8">	
 	<bean:define id="speciesCount" name="dpd.selected.product" property='<%= "vetSpeciesCount" %>'></bean:define>
 	<logic:iterate id="element" name="dpd.selected.product" property="vetSpecies" indexId="index">
 			<bean:define id="speciesLangOfPart" name="dpd.selected.product" property='<%= "vetSpeciesLangOfPart[" + index + "]" %>'></bean:define>
@@ -296,11 +345,15 @@
 				<bean:write name="element"  property="vetSpecies"/><logic:greaterThan name="dpd.selected.product" property="vetSpeciesCount" value='<%= new Integer(index + 1).toString() %>'>,&nbsp;</logic:greaterThan>
 			</logic:empty>
 	</logic:iterate>
+	</p>
+	</div>
 </logic:equal> 
-<p>
-</p>
-<p>
-	<strong><bean:message key="label.product.dosage.form"/></strong>&nbsp;
+
+<div class="row">
+		<p class="col-sm-4">
+	<strong><bean:message key="label.product.dosage.form"/></strong>
+	</p>
+		<p class="col-sm-8">
     <logic:present name="dpd.selected.product" property="formList" scope="session">
    		<logic:iterate id="element" name="dpd.selected.product" property="formList" indexId="index">
 			<bean:define id="formLangOfPart" name="dpd.selected.product" property='<%= "formLangOfPart[" + index + "]" %>'></bean:define>
@@ -317,6 +370,7 @@
     	<bean:message bundle="messageRes" key="message.not.provided"/>
    </logic:notPresent>
 </p>
+</div>
 
 <jsp:include page="/jsp/product_info_a.jsp"/>
 <jsp:include page="/jsp/product_info_b.jsp"/>

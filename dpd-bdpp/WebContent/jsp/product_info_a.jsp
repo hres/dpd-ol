@@ -2,8 +2,11 @@
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic" %>
 <%@ taglib uri="/WEB-INF/struts-nested.tld" prefix="nested" %>
-<p>
-<strong><bean:message key="label.product.route.admin"/></strong>&nbsp;
+<div class="row">
+	<p class="col-sm-4">
+	<strong><bean:message key="label.product.route.admin"/></strong>
+	</p>
+	<p class="col-sm-8">
  
    <logic:present name="dpd.selected.product" property="routeList" scope="session">
    		<logic:iterate id="element" name="dpd.selected.product" property="routeList" indexId="index">
@@ -17,13 +20,22 @@
    <logic:notPresent name="dpd.selected.product" property="routeList" scope="session">
     	<bean:message bundle="messageRes" key="message.not.provided"/>
    </logic:notPresent>
-</p>
-<p>
-  <strong><bean:message key="label.product.ai.count"/></strong>&nbsp;
+	</p>
+</div>
+<div class="row">
+		<p class="col-sm-4">
+		  <strong><bean:message key="label.product.ai.count"/></strong>
+		 </p>
+		 <p class="col-sm-8">
   <bean:write name="dpd.selected.product"  property="drugProduct.numberOfAis" scope="session"/>
 </p>
-<p><strong><bean:message key="label.product.schedule"/></strong>
-  &nbsp;
+</div>
+<div class="row">
+		<p class="col-sm-4">
+<strong><bean:message key="label.product.schedule"/></strong>
+ </p>
+ <p class="col-sm-8">
+ 
    <logic:notEmpty name="dpd.selected.product" property="scheduleList" scope="session">
    		<logic:iterate id="element" name="dpd.selected.product" property="scheduleList" indexId="index">
    			<logic:notEmpty name= "element">
@@ -39,8 +51,12 @@
     	<bean:message bundle="messageRes" key="message.not.provided"/>
    </logic:notPresent>
  </p>
-<p>
+ </div>
+ <div class="row">
+		<p class="col-sm-4">
 	<strong><span xml:lang="en" lang="en"><bean:message key="label.product.ahfs"/></span></strong>
+	</p>
+	<p class="col-sm-8">
 		<sup id="fn2-rf"><a class="fn-lnk" href="#fn2"><span class="wb-inv"><bean:message key="label.results.see.footnote"/> </span>2</a></sup>
 
 	<logic:present name="dpd.selected.product" property="ahfsList" scope="session">
@@ -67,8 +83,12 @@
    </logic:notEqual>
   </logic:notPresent>
 </p>
-<p>
+</div>
+<div class="row">
+		<p class="col-sm-4">
  <strong><bean:message key="label.product.atc"/></strong>
+  	</p>
+  	<p class="col-sm-8">
   		<sup id="fn3-rf"><a class="fn-lnk" href="#fn3"><span class="wb-inv"><bean:message key="label.results.see.footnote"/> </span>3</a></sup>
   <logic:present name="dpd.selected.product" property="atcVO.atc" scope="session">
 	 <bean:define id="atcLangOfPart" name="dpd.selected.product" property="atcLangOfPart"></bean:define>
@@ -95,3 +115,4 @@
 	   </logic:notEqual>
   </logic:notPresent>
 </p>
+</div>

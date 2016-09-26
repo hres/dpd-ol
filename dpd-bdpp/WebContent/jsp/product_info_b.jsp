@@ -2,13 +2,17 @@
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic" %>
 <%@ taglib uri="/WEB-INF/struts-nested.tld" prefix="nested" %>
-<p>
-  <strong><bean:message key="label.product.aig.no"/></strong>
+<div class="row">
+	<p class="col-sm-4">
+	  <strong><bean:message key="label.product.aig.no"/></strong>
+	</p>
+	<p class="col-sm-8">
   		<sup id="fn4-rf"><a class="fn-lnk" href="#fn4"><span class="wb-inv"><bean:message key="label.results.see.footnote"/> </span>4</a></sup>
-  <bean:write name="dpd.selected.product"  property="drugProduct.aiGroupNo" scope="session"/>
-</p>
+  		<bean:write name="dpd.selected.product"  property="drugProduct.aiGroupNo" scope="session"/>
+	</p>
+</div>
 <div class="table-responsive mrgn-tp-lg">
-	<table class='table table-striped dataTables_info data-wb-tables={"ordering" : false}'>
+	<table class='table table-striped dataTables_info table-bordered data-wb-tables={"ordering" : false}'>
 		<caption class="text-left"><bean:message key="label.active.ingredients.caption"/></caption>
 		<tr>
 	 		<th id="ingredient" scope="col" class="alignCenter"><bean:message key="label.product.ingredient"/></th>

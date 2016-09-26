@@ -82,7 +82,7 @@
 			</c:otherwise>
 		</c:choose>
 		
-		<table id="results" class="table table-striped table-condensed wb-tables" 
+		<table id="results" class="table table-striped table-condensed table-bordered wb-tables" 
 			data-wb-tables='${dataTableProcessing}'>
 			<caption class="text-left"><bean:message key="table.search.results.caption"/><br><span class="wb-inv"><bean:message key="table.search.results.summary"/></span></caption>
 			<thead>
