@@ -56,14 +56,14 @@
 			<%-- added condition if DIN = 02336650 put h1n1 disclaimer - Date: Oct. 22, 2009 --%>
 			<logic:equal name="dpd.selected.product" property="drugProduct.drugIdentificationNumber"  scope="session" 
 				value="02336650" >
-				<div class="highlight2">
+				<div class="well">
 					<bean:message key="label.pm.h1n1.din02336650.disclaimer" />
 				</div>
 			</logic:equal>
 			<%-- added condition if DIN = 02337258 put h1n1 disclaimer - Date: Nov. 5, 2009 --%>
 			<logic:equal name="dpd.selected.product" property="drugProduct.drugIdentificationNumber"  scope="session" 
 				value="02337258" >
-				<div class="highlight2">
+				<div class="well">
 					<bean:message key="label.pm.h1n1.din02337258.disclaimer" />
 				</div>
 			</logic:equal>
@@ -173,17 +173,15 @@
 	
 		<logic:equal name="dpd.selected.product" property="pmVO.pmName" value="" scope="session">
 			<div class="row">
-			<p class="col-sm-4">
-			<strong><bean:message key="label.product.din"/></strong>
-			</p>
-			<p class="col-sm-8">
-				<bean:write name="dpd.selected.product" property="drugProduct.drugIdentificationNumber"  scope="session"/>
-			 	<div class="well well-sm">
-		 			<bean:message key="button.disabledPM"/>
-		 		</div>
-		 	</p>
+				<p class="col-sm-4">
+					<strong><bean:message key="label.product.din"/></strong>
+				</p>
+				<p class="col-sm-8">
+					<bean:write name="dpd.selected.product" property="drugProduct.drugIdentificationNumber" scope="session"/>
+					<span class="well well-sm  mrgn-lft-xl"><bean:message key="button.disabledPM"/></span>
+				</p>
 		 	</div>
-		 	</logic:equal>
+		 </logic:equal>
 		</logic:present>
 	</logic:notEqual>
 <logic:equal name="dpd.selected.product" property="drugProduct.drugClassE" scope="session" value="Veterinary" >
@@ -207,7 +205,7 @@
 				<p class="col-sm-8">
 			 		<bean:write name="dpd.selected.product" property="drugProduct.drugIdentificationNumber"  scope="session"/>
 			
-				<span class="well well-sm">
+				<span class="well well-sm mrgn-lft-xl">
 		 		<bean:message key="button.disabledPM"/>
 		 		</span>
 		 		</p>
