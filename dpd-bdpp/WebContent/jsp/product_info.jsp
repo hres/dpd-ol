@@ -74,10 +74,6 @@
 	</logic:present>
 </logic:notEqual>
 <div class="row">
-    <p class="col-sm-4"><strong>Adverse Reaction Report Number:</strong></p>
-    <div class="col-sm-8"><p id="ReportNo"></p></div>
-</div>
-<div class="row">
     <p class="col-sm-4"><strong>
 	<bean:message key="label.product.current.status"/></strong></p>
 <p class="col-sm-8">	<strong>
@@ -182,7 +178,7 @@
 			</p>
 			<p class="col-sm-8">
 				<bean:write name="dpd.selected.product" property="drugProduct.drugIdentificationNumber"  scope="session"/>
-			 	<div class="indent2 lightgreyBG">
+			 	<div class="well well-sm">
 		 			<bean:message key="button.disabledPM"/>
 		 		</div>
 		 	</p>
@@ -211,7 +207,7 @@
 				<p class="col-sm-8">
 			 		<bean:write name="dpd.selected.product" property="drugProduct.drugIdentificationNumber"  scope="session"/>
 			
-				<span class="indent2 lightgreyBG">
+				<span class="well well-sm">
 		 		<bean:message key="button.disabledPM"/>
 		 		</span>
 		 		</p>
