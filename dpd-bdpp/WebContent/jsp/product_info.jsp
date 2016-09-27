@@ -99,10 +99,10 @@
 <div class="row">
 <logic:equal name="dpd.selected.product" property="isApproved" scope="session" value="false">
     <p class="col-sm-4">
-		<strong><bean:message key="label.original.market.date"/></strong>
-	</p>
-	<p class="col-sm-8">	
+		<strong><bean:message key="label.original.market.date"/></strong>	
 		<sup id="fn1-rf"><a class="fn-lnk" href="#fn1"><span class="wb-inv"><bean:message key="label.results.see.footnote"/> </span>1</a></sup>
+	</p>
+	<p class="col-sm-8">
 	  	<bean:write name="dpd.selected.product" property="originalMarketDate" format="yyyy-MM-dd" scope="session"/>
 	 <br/>
 	</p>

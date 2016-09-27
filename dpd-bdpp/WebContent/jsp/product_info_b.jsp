@@ -4,10 +4,10 @@
 <%@ taglib uri="/WEB-INF/struts-nested.tld" prefix="nested" %>
 <div class="row">
 	<p class="col-sm-4">
-	  <strong><bean:message key="label.product.aig.no"/></strong>
+	  <strong><bean:message key="label.product.aig.no"/></strong><sup id="fn4-rf"><a class="fn-lnk" href="#fn4"><span class="wb-inv"><bean:message key="label.results.see.footnote"/> </span>4</a></sup>
 	</p>
 	<p class="col-sm-8">
-  		<sup id="fn4-rf"><a class="fn-lnk" href="#fn4"><span class="wb-inv"><bean:message key="label.results.see.footnote"/> </span>4</a></sup>
+  		
   		<bean:write name="dpd.selected.product"  property="drugProduct.aiGroupNo" scope="session"/>
 	</p>
 </div>

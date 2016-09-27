@@ -11,10 +11,7 @@
     <form-beans>
 	    <form-bean name="SearchForm" 
 	               type="ca.gc.hc.view.SearchForm"/>
-	    
-	    <form-bean name="PagerForm"
-	               type="ca.gc.hc.view.PagerForm" />
-	    
+	    	    
 	    <form-bean name="ShortcutSearchForm" type="org.apache.struts.action.DynaActionForm">
 	      <form-property name="code" type="java.lang.String" initial="" />
 	      <form-property name="no" type="java.lang.String" initial="" />
@@ -111,32 +108,6 @@
                  path="t.info" 
                  redirect="false" />
          
-    </action>
-
-    <action path="/previous-precedent"
-            type="ca.gc.hc.controller.DisplayPreviousPageAction"
-            name="PagerForm"
-            scope="request"
-            validate="false"
-            parameter="25"
-            input="t.result.resultat">
-        <forward name="success"
-                 path="t.result.resultat" 
-                 redirect="false" />
-        
-    </action>
-
-    <action path="/next-suivant"
-            type="ca.gc.hc.controller.DisplayNextPageAction"
-            name="PagerForm"
-            scope="request"
-            validate="false"
-            parameter="25"
-            input="t.result.resultat">
-        <forward name="success"
-                 path="t.result.resultat" 
-                 redirect="false" />
-       
     </action>
 
     <action path="/item-iteme" type="ca.gc.hc.controller.DisplayItemAction"  name="viewPmForm"

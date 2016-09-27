@@ -55,22 +55,22 @@
  <div class="row">
 		<p class="col-sm-4">
 	<strong><span xml:lang="en" lang="en"><bean:message key="label.product.ahfs"/></span></strong>
+		<sup id="fn2-rf"><a class="fn-lnk" href="#fn2"><span class="wb-inv"><bean:message key="label.results.see.footnote"/> </span>2</a></sup>
 	</p>
 	<p class="col-sm-8">
-		<sup id="fn2-rf"><a class="fn-lnk" href="#fn2"><span class="wb-inv"><bean:message key="label.results.see.footnote"/> </span>2</a></sup>
 
 	<logic:present name="dpd.selected.product" property="ahfsList" scope="session">
    		<logic:iterate id="element" name="dpd.selected.product" property="ahfsList" indexId="index">
-    		<logic:match name="element" property="ahfsNumber" value="*">
-  				<sup id="fn5-rf"><a class="fn-lnk" href="#fn5"><span class="wb-inv"><bean:message key="label.results.see.footnote"/> </span>5</a></sup>
-  				<bean:define id="showFootnoteFive" value="true" toScope="request"></bean:define>
-   			</logic:match>
 			<bean:define id="ahfsLangOfPart" name="dpd.selected.product" property='<%= "ahfsLangOfPart[" + index + "]" %>'></bean:define>
 			<logic:notEmpty name="dpd.selected.product" property='<%= "ahfsLangOfPart[" + index + "]" %>'>
-				<bean:write name="element"  property="ahfsNumber"/>&nbsp;
+				<bean:write name="element"  property="ahfsNumber"/>
 				<span xml:lang='<%= ahfsLangOfPart %>' lang='<%= ahfsLangOfPart %>'><bean:write name="element" property="ahfs"/></span><logic:greaterThan name="dpd.selected.product" property="ahfsSpeciesCount" value='<%= new Integer(index + 1).toString() %>'>,&nbsp;</logic:greaterThan>
 			</logic:notEmpty>
-			<logic:empty name="ahfsLangOfPart"><bean:write name="element"  property="ahfsNumber"/>&nbsp;<bean:write name="element" property="ahfs"/><logic:greaterThan name="dpd.selected.product" property="ahfsSpeciesCount" value='<%= new Integer(index + 1).toString() %>'>,&nbsp;</logic:greaterThan></logic:empty>
+			<logic:empty name="ahfsLangOfPart"><bean:write name="element"  property="ahfsNumber"/>
+    		<logic:match name="element" property="ahfsNumber" value="*">
+  				<sup id="fn5-rf"><a class="fn-lnk" href="#fn5"><span class="wb-inv"><bean:message key="label.results.see.footnote"/> </span>5</a></sup>&nbsp;
+  				<bean:define id="showFootnoteFive" value="true" toScope="request"></bean:define>
+   			</logic:match>&nbsp;<bean:write name="element" property="ahfs"/><logic:greaterThan name="dpd.selected.product" property="ahfsSpeciesCount" value='<%= new Integer(index + 1).toString() %>'>,&nbsp;</logic:greaterThan></logic:empty>
   		 </logic:iterate>
   </logic:present>	
 		
@@ -87,9 +87,9 @@
 <div class="row">
 		<p class="col-sm-4">
  <strong><bean:message key="label.product.atc"/></strong>
+  		<sup id="fn3-rf"><a class="fn-lnk" href="#fn3"><span class="wb-inv"><bean:message key="label.results.see.footnote"/> </span>3</a></sup>
   	</p>
   	<p class="col-sm-8">
-  		<sup id="fn3-rf"><a class="fn-lnk" href="#fn3"><span class="wb-inv"><bean:message key="label.results.see.footnote"/> </span>3</a></sup>
   <logic:present name="dpd.selected.product" property="atcVO.atc" scope="session">
 	 <bean:define id="atcLangOfPart" name="dpd.selected.product" property="atcLangOfPart"></bean:define>
   	 <logic:notEmpty name="dpd.selected.product" property="atcLangOfPart">
