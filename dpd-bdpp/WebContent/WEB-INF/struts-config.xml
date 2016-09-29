@@ -34,8 +34,7 @@
   
   <global-forwards>
     <forward name="SearchPage" path="/newSearch-nouvelleRecherche.do"/>
-    <forward name="sessionTimeout" path="/distro/4.0.9/timeout.jsp" />
-	<forward name="error404" path="/error404.do" />
+    <forward name="error404" path="/error404.do" />
 	<forward name="error500" path="/error500.do" />
 	<forward name="timeout" path="/timeout.do" />
   </global-forwards>
