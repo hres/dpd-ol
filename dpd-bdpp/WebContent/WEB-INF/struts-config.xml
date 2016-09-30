@@ -137,7 +137,7 @@
 	</action>
 	
 	 <action path="/timeout" type="ca.gc.hc.controller.TimeoutAction" name="dummyForm" >
-		<forward name="timeout" path="t.timeout"/>
+		<forward name="sessionTimeout" path="t.timeout"/>
 	</action>    
   </action-mappings>
 

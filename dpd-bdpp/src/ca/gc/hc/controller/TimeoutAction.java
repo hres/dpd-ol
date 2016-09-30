@@ -80,7 +80,7 @@ public class TimeoutAction extends Action {
 		request.setAttribute("defPreFooter", strDefPreFooter);
 		request.setAttribute("languageLinkUrl", goctemplateclientbean.getLanguageLinkUrl());
 
-		return mapping.findForward("timeout");
+		return mapping.findForward("sessionTimeout");
 		
 	}
 }
