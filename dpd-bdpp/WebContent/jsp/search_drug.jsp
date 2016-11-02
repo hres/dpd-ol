@@ -66,6 +66,9 @@
 	<div class="form-group">
 		<label for="status" class="col-lg-3 control-label"><bean:message key="label.search.drug.status"/></label>
 		<div class="col-lg-9 colmrgn-bttm-sm">
+			<logic:messagesPresent name="org.apache.struts.action.ERROR" property="status">
+				<bean:message bundle="messageRes" key="error.invalide.status.without.anchor" />
+			</logic:messagesPresent>		
 			<html:select name="search" styleId="status" property="status" styleClass="form-control" >
 				<html:optionsCollection name="appGlobals" property="status" label="label" value="value"/>
 			</html:select>

@@ -39,6 +39,8 @@ public final class ApplicationGlobals {
 	public static final String LANG_FR = Locale.FRENCH.getLanguage();
 	private static final String SELECT_ALL_EN = "Select all";
 	private static final String SELECT_ALL_FR = "Aucune restriction";
+	private static final String SELECT_STATUS_EN = "Select a status";
+	private static final String SELECT_STATUS_FR = "Choisissez un état";	
 	private static final String DISCONTINUED_ALL_EN = "Discontinued (ALL)";
 	private static final String DISCONTINUED_ALL_FR = "Discontinué (Tout)";
 	public static final String ACTIVE_DRUG_STATUS_ID = "2"; //This needs to equal the wqry_status.status_code of 'Marketed (Notified)',
@@ -395,6 +397,22 @@ public final class ApplicationGlobals {
 		return selectAllLabel;
 	}
 	
+	/**
+	 * New requirement to add entry in Status dropdown
+	 * @author ahasan 2016-11-01
+	 */
+	private String getSelectStatusLabel(String language) {
+		String selectStatusLabel = "";
+		
+		if (language.equals(LANG_FR)) {
+			selectStatusLabel = SELECT_STATUS_FR;
+		}else {
+			selectStatusLabel = SELECT_STATUS_EN;
+		}
+		return selectStatusLabel;
+	}
+		
+	
 	private void populateDrugSearchCriteriaList(HashMap mapList, HashMap uniqueMap) 
 		throws Exception {
 		
@@ -496,9 +514,13 @@ public final class ApplicationGlobals {
 			uniqueListItems.add(new LabelValueBean(localizedStatus, s
 					.getExternalStatusId().toString()));
 		}
+
 		// add the "Select ALL" label
 		uniqueListItems.add(0, new LabelValueBean(getSelectAllLabel(language),
 				"0"));
+		// add the "Select status" label
+		uniqueListItems.add(0, new LabelValueBean(getSelectStatusLabel(language),
+				"-1"));			
 		statusMap.put(language, uniqueListItems);
 	}
 	

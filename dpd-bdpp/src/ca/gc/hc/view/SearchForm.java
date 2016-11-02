@@ -204,7 +204,7 @@ public class SearchForm extends ValidatorForm
 		this.drugCode = null;
 		this.din = null;
 		this.atc = null;
-		this.status = new String[]{"0"}; //Requested by L.Travill June 2016: remove "marketed" as default status
+		this.status = new String[]{"-1"}; //Requested by ADR0250-1617, default "Select a status"
 		this.companyName = null;
 		this.brandName = null;
 		this.activeIngredient = null;
@@ -295,7 +295,11 @@ public class SearchForm extends ValidatorForm
 			//     {
 			//       errors.add("activeIngredient", new ActionMessage("error.invalide.ai"));
 			//     }
-
+			if (status != null){
+				if (status[0].equals("-1")){
+					errors.add("status", new ActionMessage("error.invalide.status"));
+				}
+			}
 			if (aigNumber != null
 					&& aigNumber.length() > 0
 					&& (!StringUtils.isNumeric(aigNumber) || aigNumber.length() != 10))
