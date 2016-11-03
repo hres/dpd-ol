@@ -160,8 +160,15 @@
 			</p>
 			<p class="col-sm-8">
 		 	<bean:write name="dpd.selected.product" property="drugProduct.drugIdentificationNumber"  scope="session"/>
-		  	
-		  
+		  	</p>
+		  	</div>
+			
+			<div class="row">		  	
+			<p class="col-sm-4">
+			<strong><bean:message key="label.product.monograph"/></strong>
+			</p>
+			<p class="col-sm-8">
+			<bean:write name="dpd.selected.product" property="pmVO.pmDate"  scope="session"/>					  
 			<span class="glyphicon glyphicon-paperclip mrgn-lft-xl">
 			 	<html:link action="item-iteme" paramId="pm-mp" paramName="dpd.selected.product" paramProperty="pmVO.pmName">
 			 		<bean:message key="button.viewPM"/>
