@@ -123,6 +123,9 @@
 			type="java.util.Date" />
 		<property name="originalMarketDate" column="ORIGINAL_MARKET_DATE"
 			type="java.util.Date" />
+		<property name="expirationDate" column="EXPIRATION_DATE"
+			type="java.util.Date" />			
+		<property name="lotNumber" column="LOT_NUMBER" type="java.lang.String" />			
 		<many-to-one name="externalStatus" class="ExternalStatus" column="EXTERNAL_STATUS_CODE" />
 	</class>
 	

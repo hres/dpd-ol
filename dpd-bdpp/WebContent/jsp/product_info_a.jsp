@@ -55,7 +55,7 @@
  <div class="row">
 		<p class="col-sm-4">
 	<strong><span xml:lang="en" lang="en"><bean:message key="label.product.ahfs"/></span></strong>
-		<sup id="fn2-rf"><a class="fn-lnk" href="#fn2"><span class="wb-inv"><bean:message key="label.results.see.footnote"/> </span>2</a></sup>
+		<sup id="fn3-rf"><a class="fn-lnk" href="#fn3"><span class="wb-inv"><bean:message key="label.results.see.footnote"/> </span>3</a></sup>
 	</p>
 	<p class="col-sm-8">
 
@@ -65,8 +65,8 @@
 			<logic:notEmpty name="dpd.selected.product" property='<%= "ahfsLangOfPart[" + index + "]" %>'>
 				<bean:write name="element"  property="ahfsNumber"/>
 		    		<logic:match name="element" property="ahfsNumber" value="*">
-		  				 <sup id="fn5-rf"><a class="fn-lnk" href="#fn5"><span class="wb-inv"><bean:message key="label.results.see.footnote"/> </span>5</a></sup>
-		  				<bean:define id="showFootnoteFive" value="true" toScope="request"></bean:define>
+		  				 <sup id="fn6-rf"><a class="fn-lnk" href="#fn6"><span class="wb-inv"><bean:message key="label.results.see.footnote"/> </span>6</a></sup>
+		  				<bean:define id="showFootnoteSix" value="true" toScope="request"></bean:define>
 				</logic:match>
 				&nbsp;
 				<span xml:lang='<%= ahfsLangOfPart %>' lang='<%= ahfsLangOfPart %>'>
@@ -79,8 +79,8 @@
 			<logic:empty name="ahfsLangOfPart">
 				<bean:write name="element"  property="ahfsNumber"/>
 		    		<logic:match name="element" property="ahfsNumber" value="*">
-		  				<sup id="fn5-rf"><a class="fn-lnk" href="#fn5"><span class="wb-inv"><bean:message key="label.results.see.footnote"/> </span>5</a></sup>
-		  				<bean:define id="showFootnoteFive" value="true" toScope="request"></bean:define>
+		  				<sup id="fn6-rf"><a class="fn-lnk" href="#fn6"><span class="wb-inv"><bean:message key="label.results.see.footnote"/> </span>6</a></sup>
+		  				<bean:define id="showFootnoteSix" value="true" toScope="request"></bean:define>
 				</logic:match>
 				&nbsp;
 				<bean:write name="element" property="ahfs"/>
@@ -104,7 +104,7 @@
 <div class="row">
 		<p class="col-sm-4">
  <strong><bean:message key="label.product.atc"/></strong>
-  		<sup id="fn3-rf"><a class="fn-lnk" href="#fn3"><span class="wb-inv"><bean:message key="label.results.see.footnote"/> </span>3</a></sup>
+  		<sup id="fn4-rf"><a class="fn-lnk" href="#fn4"><span class="wb-inv"><bean:message key="label.results.see.footnote"/> </span>4</a></sup>
   	</p>
   	<p class="col-sm-8">
   <logic:present name="dpd.selected.product" property="atcVO.atc" scope="session">

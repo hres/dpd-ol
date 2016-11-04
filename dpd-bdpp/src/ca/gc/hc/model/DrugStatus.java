@@ -38,15 +38,20 @@ public class DrugStatus extends LocaleDependantObject  implements Serializable
 
 	/** Original marketing date (regardless of later company changes)*/
 	private java.util.Date originalMarketDate; // ADR0183
+	private java.util.Date expirationDate; //ADR0250-1617
+	private String lotNumber; //ADR0250-1617
 
 	/** full constructor */
 	public DrugStatus(java.lang.Long drugCode, java.lang.Long statusID,
-			java.util.Date historyDate, java.util.Date originalMarketDate,
+			java.util.Date historyDate, java.util.Date originalMarketDate, java.util.Date expirationDate, 
+			String lotNumber,
 			ExternalStatus externalStatus) {
 		this.drugCode = drugCode;
 		this.statusID = statusID;
 		this.historyDate = historyDate;
 		this.originalMarketDate = originalMarketDate;
+		this.expirationDate = expirationDate;
+		this.lotNumber = lotNumber;
 		this.setExternalStatus(externalStatus);
 	}
 
@@ -113,6 +118,22 @@ public class DrugStatus extends LocaleDependantObject  implements Serializable
 
 	public ExternalStatus getExternalStatus() {
 		return externalStatus;
+	}
+
+	public java.util.Date getExpirationDate() {
+		return expirationDate;
+	}
+
+	public void setExpirationDate(java.util.Date expirationDate) {
+		this.expirationDate = expirationDate;
+	}
+
+	public String getLotNumber() {
+		return lotNumber;
+	}
+
+	public void setLotNumber(String lotNumber) {
+		this.lotNumber = lotNumber;
 	}
 
 }
