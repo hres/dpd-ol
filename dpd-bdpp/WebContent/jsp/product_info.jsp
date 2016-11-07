@@ -110,8 +110,8 @@
 	</div>
 </logic:equal>
 
-<div class="row">
-	<logic:notEmpty name="dpd.selected.product" property="statusVO.expirationDate">
+<logic:notEmpty name="dpd.selected.product" property="statusVO.expirationDate">
+	<div class="row">	
 	    <p class="col-sm-4">
 			<strong><bean:message key="label.expiry.date"/></strong>	
 			<sup id="fn2-rf"><a class="fn-lnk" href="#fn2"><span class="wb-inv"><bean:message key="label.results.see.footnote"/> </span>2</a></sup>
@@ -120,8 +120,9 @@
 		  	<bean:write name="dpd.selected.product" property="statusVO.expirationDate" format="yyyy-MM-dd" scope="session"/>
 		 <br/>
 		</p>
-	</logic:notEmpty>
-</div>
+	</div>		
+</logic:notEmpty>
+
 	
 <div class="row">
 	<p class="col-sm-4">	
@@ -181,7 +182,7 @@
 			<p class="col-sm-4">
 			<strong><bean:message key="label.product.monograph"/></strong>
 			</p>
-			<p class="col-sm-8">
+			<p class="col-sm-8"><strong><bean:message key="label.product.monograph.date"/></strong>
 			<bean:write name="dpd.selected.product" property="pmVO.pmDate"  scope="session"/>					  
 			<span class="glyphicon glyphicon-paperclip mrgn-lft-xl">
 			 	<html:link action="item-iteme" paramId="pm-mp" paramName="dpd.selected.product" paramProperty="pmVO.pmName">
@@ -393,11 +394,15 @@
 <aside class="wb-fnote wb-fnote-inited" role="note">
 	<h3 id="fn"><bean:message key="label.results.page.footnotes"/></h3>
 	<dl>
-		<dt id="fn1-dt"><bean:message key="label.results.footnote"/> 1</dt>
-		<dd aria-labelledby="fn1-dt" tabindex="-1" id="fn1">
-			<p><bean:message key="label.product.orig.market.date.help"/></p>
-			<p class="fn-rtn"><a href="#fn1-rf"><span class="wb-inv"><bean:message key="label.results.return.to.footnote"/> </span>1<span class="wb-inv"> <bean:message key="label.results.referrer"/></span></a></p>
-		</dd>
+		<logic:equal name="dpd.selected.product" property="isRadioPharmaceutical" scope="session" value="false">
+			<logic:equal name="dpd.selected.product" property="isApproved" scope="session" value="false">	
+				<dt id="fn1-dt"><bean:message key="label.results.footnote"/> 1</dt>
+				<dd aria-labelledby="fn1-dt" tabindex="-1" id="fn1">
+					<p><bean:message key="label.product.orig.market.date.help"/></p>
+					<p class="fn-rtn"><a href="#fn1-rf"><span class="wb-inv"><bean:message key="label.results.return.to.footnote"/> </span>1<span class="wb-inv"> <bean:message key="label.results.referrer"/></span></a></p>
+				</dd>
+			</logic:equal>
+		</logic:equal>		
 		<logic:notEmpty name="dpd.selected.product" property="statusVO.expirationDate">			
 			<dt id="fn2-dt"><bean:message key="label.results.footnote"/> 2</dt>
 			<dd aria-labelledby="fn2-dt" tabindex="-1" id="fn2">

@@ -9,9 +9,6 @@ package ca.gc.hc.model;
 import java.io.Serializable;
 import java.sql.Date;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-
 
 public class ProductLabel implements Serializable{
 	
