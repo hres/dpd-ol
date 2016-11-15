@@ -4,7 +4,7 @@
 <%@ taglib uri="/WEB-INF/struts-nested.tld" prefix="nested" %>
 <div class="row">
 	<p class="col-sm-4">
-	  <strong><bean:message key="label.product.aig.no"/></strong><sup id="fn5-rf"><a class="fn-lnk" href="#fn5"><span class="wb-inv"><bean:message key="label.results.see.footnote"/> </span>5</a></sup>
+	  <strong><bean:message key="label.product.aig.no"/></strong><sup id="fn6-rf"><a class="fn-lnk" href="#fn6"><span class="wb-inv"><bean:message key="label.results.see.footnote"/> </span>6</a></sup>
 	</p>
 	<p class="col-sm-8">
   		

@@ -110,11 +110,24 @@
 	</div>
 </logic:equal>
 
+<logic:notEmpty name="dpd.selected.product" property="statusVO.lotNumber">
+	<div class="row">	
+	    <p class="col-sm-4">
+			<strong><bean:message key="label.lot.number"/></strong>	
+			<sup id="fn2-rf"><a class="fn-lnk" href="#fn2"><span class="wb-inv"><bean:message key="label.results.see.footnote"/> </span>2</a></sup>
+		</p>
+		<p class="col-sm-8">
+		  	<bean:write name="dpd.selected.product" property="statusVO.lotNumber" scope="session"/>
+		 <br/>
+		</p>
+	</div>		
+</logic:notEmpty>
+
 <logic:notEmpty name="dpd.selected.product" property="statusVO.expirationDate">
 	<div class="row">	
 	    <p class="col-sm-4">
 			<strong><bean:message key="label.expiry.date"/></strong>	
-			<sup id="fn2-rf"><a class="fn-lnk" href="#fn2"><span class="wb-inv"><bean:message key="label.results.see.footnote"/> </span>2</a></sup>
+			<sup id="fn3-rf"><a class="fn-lnk" href="#fn3"><span class="wb-inv"><bean:message key="label.results.see.footnote"/> </span>3</a></sup>
 		</p>
 		<p class="col-sm-8">
 		  	<bean:write name="dpd.selected.product" property="statusVO.expirationDate" format="yyyy-MM-dd" scope="session"/>
@@ -403,38 +416,45 @@
 				</dd>
 			</logic:equal>
 		</logic:equal>		
-		<logic:notEmpty name="dpd.selected.product" property="statusVO.expirationDate">			
+		<logic:notEmpty name="dpd.selected.product" property="statusVO.lotNumber">			
 			<dt id="fn2-dt"><bean:message key="label.results.footnote"/> 2</dt>
 			<dd aria-labelledby="fn2-dt" tabindex="-1" id="fn2">
-				<p><bean:message key="label.expiry.date.help"/></p>
+				<p><bean:message key="label.lot.number.help"/></p>
 				<p class="fn-rtn"><a href="#fn2-rf"><span class="wb-inv"><bean:message key="label.results.return.to.footnote"/> </span>2<span class="wb-inv"> <bean:message key="label.results.referrer"/></span></a></p>
 			</dd>		
+		</logic:notEmpty>			
+		<logic:notEmpty name="dpd.selected.product" property="statusVO.expirationDate">			
+			<dt id="fn3-dt"><bean:message key="label.results.footnote"/> 3</dt>
+			<dd aria-labelledby="fn3-dt" tabindex="-1" id="fn3">
+				<p><bean:message key="label.expiry.date.help"/></p>
+				<p class="fn-rtn"><a href="#fn3-rf"><span class="wb-inv"><bean:message key="label.results.return.to.footnote"/> </span>3<span class="wb-inv"> <bean:message key="label.results.referrer"/></span></a></p>
+			</dd>		
 		</logic:notEmpty>		
-		<dt id="fn3-dt"><bean:message key="label.results.footnote"/> 3</dt>
-		<dd aria-labelledby="fn3-dt" tabindex="-1" id="fn3">
-			<p><bean:message key="label.product.ahfs.help"/></p>
-			<p class="fn-rtn"><a href="#fn3-rf"><span class="wb-inv"><bean:message key="label.results.return.to.footnote"/> </span>3<span class="wb-inv"> <bean:message key="label.results.referrer"/></span></a></p>
-		</dd>
 		<dt id="fn4-dt"><bean:message key="label.results.footnote"/> 4</dt>
 		<dd aria-labelledby="fn4-dt" tabindex="-1" id="fn4">
-			<p><bean:message key="label.product.atc.help"/></p>
+			<p><bean:message key="label.product.ahfs.help"/></p>
 			<p class="fn-rtn"><a href="#fn4-rf"><span class="wb-inv"><bean:message key="label.results.return.to.footnote"/> </span>4<span class="wb-inv"> <bean:message key="label.results.referrer"/></span></a></p>
 		</dd>
 		<dt id="fn5-dt"><bean:message key="label.results.footnote"/> 5</dt>
 		<dd aria-labelledby="fn5-dt" tabindex="-1" id="fn5">
+			<p><bean:message key="label.product.atc.help"/></p>
+			<p class="fn-rtn"><a href="#fn5-rf"><span class="wb-inv"><bean:message key="label.results.return.to.footnote"/> </span>5<span class="wb-inv"> <bean:message key="label.results.referrer"/></span></a></p>
+		</dd>
+		<dt id="fn6-dt"><bean:message key="label.results.footnote"/> 6</dt>
+		<dd aria-labelledby="fn6-dt" tabindex="-1" id="fn6">
 			<p><bean:message key="label.product.aig.no.help0"/>
 				<ul>
 					<li><bean:message key="label.product.aig.no.help1"/></li>
 					<li><bean:message key="label.product.aig.no.help2"/></li>
 					<li><bean:message key="label.product.aig.no.help3"/></li>
 				</ul>
-			<p class="fn-rtn"><a href="#fn5-rf"><span class="wb-inv"><bean:message key="label.results.return.to.footnote"/> </span>5<span class="wb-inv"> <bean:message key="label.results.referrer"/></span></a></p>
+			<p class="fn-rtn"><a href="#fn6-rf"><span class="wb-inv"><bean:message key="label.results.return.to.footnote"/> </span>6<span class="wb-inv"> <bean:message key="label.results.referrer"/></span></a></p>
 		</dd>
-		<logic:equal name="showFootnoteSix" value="true" scope="request">
-			<dt id="fn6-dt"><bean:message key="label.results.footnote"/> 6</dt>
-			<dd aria-labelledby="fn6-dt" tabindex="-1" id="fn6">
+		<logic:equal name="showFootnoteSeven" value="true" scope="request">
+			<dt id="fn7-dt"><bean:message key="label.results.footnote"/> 7</dt>
+			<dd aria-labelledby="fn7-dt" tabindex="-1" id="fn7">
 				<p><bean:message key="label.product.ahfs.note"/></p>
-				<p class="fn-rtn"><a href="#fn6-rf"><span class="wb-inv"><bean:message key="label.results.return.to.footnote"/> </span>6<span class="wb-inv"> <bean:message key="label.results.referrer"/></span></a></p>
+				<p class="fn-rtn"><a href="#fn7-rf"><span class="wb-inv"><bean:message key="label.results.return.to.footnote"/> </span>7<span class="wb-inv"> <bean:message key="label.results.referrer"/></span></a></p>
 			</dd>
 		</logic:equal>
 		
