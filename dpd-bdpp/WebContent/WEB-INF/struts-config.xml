@@ -108,14 +108,6 @@
                  redirect="false" />
          
     </action>
-
-    <action path="/item-iteme" type="ca.gc.hc.controller.DisplayItemAction"  name="viewPmForm"
-              scope="session"
-              validate="false"
-              input="t.info" parameter="method">
-  		 <forward name="error"  path="t.info" redirect="false" />
-	   
-    </action>
     
    <action path="/view-afficher" type="ca.gc.hc.controller.DisplayLabelAction"  name="viewPmForm"
               scope="session"

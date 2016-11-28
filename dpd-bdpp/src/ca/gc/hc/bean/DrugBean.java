@@ -482,6 +482,12 @@ public class DrugBean extends BaseBean implements Serializable
 	public boolean getIsApproved() {
 		return this.statusVO.getExternalStatus().getExternalStatusId().equals(ApplicationGlobals.APPROVED_STATUS_CODE);
 	}
+	
+	public boolean getDisplayFootnoteTwo(){
+		if ((statusVO.getLotNumber() != null) || (statusVO.getExpirationDate() != null)) {
+			return true;
+		} else return false;
+	}
 
 	public Object getOriginalMarketDate() {
 		String notApplicable = 

@@ -35,14 +35,14 @@ public class ProductMonograph  extends LocaleDependantObject {
 	 * @return
 	 */
 	public String getPmEnglishFName() {
-		return pmEnglishFName;
+		return pmEnglishFName + ".PDF";
 	}
 
 	/**
 	 * @return
 	 */
 	public String getPmFrenchFName() {
-		return pmFrenchFName;
+		return pmFrenchFName + ".PDF";
 	}
 
 	/**
