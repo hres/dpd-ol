@@ -6,10 +6,12 @@
  */
 package ca.gc.hc.model;
 
+import java.io.Serializable;
 import java.sql.Date;
+
 import ca.gc.hc.util.LocaleDependantObject;
 
-public class ProductMonograph  extends LocaleDependantObject {
+public class ProductMonograph  extends LocaleDependantObject implements Serializable {
 	
 	/** identifier field */
 	private Long drugCode;
@@ -35,14 +37,14 @@ public class ProductMonograph  extends LocaleDependantObject {
 	 * @return
 	 */
 	public String getPmEnglishFName() {
-		return pmEnglishFName + ".PDF";
+		return pmEnglishFName;
 	}
 
 	/**
 	 * @return
 	 */
 	public String getPmFrenchFName() {
-		return pmFrenchFName + ".PDF";
+		return pmFrenchFName;
 	}
 
 	/**
@@ -88,10 +90,10 @@ public class ProductMonograph  extends LocaleDependantObject {
 	 */
 	public String getPmName() {
 		if (isLanguageFrench()) {
-			return getPmFrenchFName();
+			return getPmFrenchFName() + ".PDF";
 		}
 			
-		return getPmEnglishFName();
+		return getPmEnglishFName() + ".PDF";
 	}
 
 
