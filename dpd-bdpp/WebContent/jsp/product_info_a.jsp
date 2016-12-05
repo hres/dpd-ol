@@ -102,34 +102,34 @@
 </p>
 </div>
 <div class="row">
-		<p class="col-sm-4">
- <strong><bean:message key="label.product.atc"/></strong>
-  		<sup id="fn4-rf"><a class="fn-lnk" href="#fn4"><span class="wb-inv"><bean:message key="label.results.see.footnote"/> </span>4</a></sup>
+	<p class="col-sm-4">
+		<strong><bean:message key="label.product.atc"/></strong>
+ 		<sup id="fn4-rf"><a class="fn-lnk" href="#fn4"><span class="wb-inv"><bean:message key="label.results.see.footnote"/> </span>4</a></sup>
   	</p>
   	<p class="col-sm-8">
-  <logic:present name="dpd.selected.product" property="atcVO.atc" scope="session">
-	 <bean:define id="atcLangOfPart" name="dpd.selected.product" property="atcLangOfPart"></bean:define>
-  	 <logic:notEmpty name="dpd.selected.product" property="atcLangOfPart">
-	 	<bean:write name="dpd.selected.product"  property="atcVO.atcNumber" scope="session"/>&nbsp;
-	 	<span xml:lang='<%= atcLangOfPart %>' lang='<%= atcLangOfPart %>'><bean:write name="dpd.selected.product" property="atcVO.atc" scope="session"/></span>
-	 </logic:notEmpty>
-	 <logic:empty name="atcLangOfPart">
-	 	<bean:write name="dpd.selected.product"  property="atcVO.atcNumber" scope="session"/>&nbsp;		    	
- 		<bean:write name="dpd.selected.product" property="atcVO.atc" scope="session"/>
-	 </logic:empty>
-  </logic:present>
-  <logic:notPresent name="dpd.selected.product" property="atcVO.atc" scope="session">
-	   <logic:equal name="dpd.selected.product" property="drugProduct.drugClassE" scope="session" value="Veterinary">
-	    	<bean:message bundle="messageRes" key="message.not.applicable"/>
-	   </logic:equal>
-	   <logic:notEqual name="dpd.selected.product" property="drugProduct.drugClassE" scope="session" value="Veterinary">
-		    <logic:present name="ahfs.92" scope="session">
-		     	<bean:message bundle="messageRes" key="message.not.applicable"/>
-		    </logic:present>
-		    <logic:notPresent name="ahfs.92" scope="session">
-		     	<bean:message bundle="messageRes" key="message.not.provided"/>
-		    </logic:notPresent>
-	   </logic:notEqual>
-  </logic:notPresent>
-</p>
+	  <logic:present name="dpd.selected.product" property="atcVO.atc" scope="session">
+		 <bean:define id="atcLangOfPart" name="dpd.selected.product" property="atcLangOfPart"></bean:define>
+	  	 <logic:notEmpty name="dpd.selected.product" property="atcLangOfPart">
+		 	<bean:write name="dpd.selected.product"  property="atcVO.atcNumber" scope="session"/>&nbsp;
+		 	<span xml:lang='<%= atcLangOfPart %>' lang='<%= atcLangOfPart %>'><bean:write name="dpd.selected.product" property="atcVO.atc" scope="session"/></span>
+		 </logic:notEmpty>
+		 <logic:empty name="atcLangOfPart">
+		 	<bean:write name="dpd.selected.product"  property="atcVO.atcNumber" scope="session"/>&nbsp;		    	
+	 		<bean:write name="dpd.selected.product" property="atcVO.atc" scope="session"/>
+		 </logic:empty>
+	  </logic:present>
+	  <logic:notPresent name="dpd.selected.product" property="atcVO.atc" scope="session">
+		   <logic:equal name="dpd.selected.product" property="drugProduct.drugClassE" scope="session" value="Veterinary">
+		    	<bean:message bundle="messageRes" key="message.not.applicable"/>
+		   </logic:equal>
+		   <logic:notEqual name="dpd.selected.product" property="drugProduct.drugClassE" scope="session" value="Veterinary">
+			    <logic:present name="ahfs.92" scope="session">
+			     	<bean:message bundle="messageRes" key="message.not.applicable"/>
+			    </logic:present>
+			    <logic:notPresent name="ahfs.92" scope="session">
+			     	<bean:message bundle="messageRes" key="message.not.provided"/>
+			    </logic:notPresent>
+		   </logic:notEqual>
+	  </logic:notPresent>
+	</p>
 </div>

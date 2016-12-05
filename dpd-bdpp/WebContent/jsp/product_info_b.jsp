@@ -79,20 +79,25 @@
 
 <div class="row mrgn-tp-lg">
 	<div class="col-xs-6">
+			<% 
+			   java.util.HashMap params= new java.util.HashMap();
+			%>	
 	  <html:link forward ="SearchPage" name="paramsLang">
 	   <bean:message key="label.results.new.search"/>
 	  </html:link>
 	  <bean:define id="lang" >
 		<bean:message bundle="clfRes" key="label.app.lang" />
 		</bean:define>
-	  <bean:define id="no" name="dpd.selected.product" property="drugProduct.aiGroupNo" />
-		<% 
-		   java.util.HashMap params= new java.util.HashMap();
-		   params.put("no", no);
-		   params.put("lang", lang);
-		   pageContext.setAttribute("paramsName2", params);
-		   
-		 %>
+		<logic:present name="dpd.selected.product" property="drugProduct.aiGroupNo">
+		  <bean:define id="no" name="dpd.selected.product" property="drugProduct.aiGroupNo" />
+			<% 
+			   params.put("no", no);
+			   params.put("lang", lang);   
+			 %>			  
+		</logic:present>
+		<%
+			   pageContext.setAttribute("paramsName2", params);		   
+		 %>			
 	</div>
 	<div class="col-xs-6"> 
 	  <html:link action="/search-fast-recherche-rapide" name="paramsName2" >
