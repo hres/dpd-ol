@@ -231,7 +231,7 @@ public class SearchForm extends ValidatorForm
 			HttpServletRequest request)
 	{
 		ActionErrors errors = new ActionErrors();
-		HttpSession session = request.getSession(false);
+		HttpSession session = request.getSession(false);	
 		if (session.getAttribute("sessionActive") != null)
 		{
 			int count = 0;
@@ -295,11 +295,16 @@ public class SearchForm extends ValidatorForm
 			//     {
 			//       errors.add("activeIngredient", new ActionMessage("error.invalide.ai"));
 			//     }
-			if (status != null){
-				if (status[0].equals("-1")){
-					errors.add("status", new ActionMessage("error.invalide.status"));
-				}
+
+			if (session.getAttribute(ApplicationGlobals.AJAX_BEAN) == null){
+				// if not from an AJAX call, validate status - resolves JIRA DPD-50
+				if (status != null){
+					if (status[0].equals("-1")){
+						errors.add("status", new ActionMessage("error.invalide.status"));
+					}
+				}				
 			}
+
 			if (aigNumber != null
 					&& aigNumber.length() > 0
 					&& (!StringUtils.isNumeric(aigNumber) || aigNumber.length() != 10))

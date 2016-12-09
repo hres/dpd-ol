@@ -52,11 +52,11 @@
 
 <c:choose>
 	<c:when test="${result_count > 0 }">
-			<c:choose>
-				<c:when test="${result_count < 2000}">
+		<c:choose>
+			<c:when test="${result_count < 2000}">
 				<c:set var ='dataTableProcessing' value='{ "order" : [3, "asc"] }'/>
 			</c:when>
-		<c:otherwise>
+			<c:otherwise>
 				<c:set var='dataTableProcessing' value='{ "order" : [3, "asc"],
 				"bServerSide": true,
 				"bProcessing": true,
